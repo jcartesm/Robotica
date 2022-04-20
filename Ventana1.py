@@ -24,7 +24,7 @@ coorIniciales = vector(0, 6.5, 0)
 
 def Ventana():
     Suelo = box(pos=vector(0, 0, 0), size=vector(
-        1200, 3, 600), color=color.gray(0.5))
+        1280, 3, 720), color=color.gray(0.5))
 
 
 def Robot(tFXYZ):
