@@ -211,8 +211,9 @@ Robot1 = robotPrueba(0,0) ; ultPosX = Robot1.pos.x ; ultPosZ = Robot1.pos.z
 
 while True:
     xPosRobot, yPosRobot, phi1, xTambor, yTambor = LeyControl(ultPosX, ultPosZ, Tambor1.pos.x, Tambor1.pos.z, nDesp)
+    print(len(xPosRobot))
     Busqueda = 0
-    while (Busqueda <= len(xPosRobot)):
+    while (Busqueda < len(xPosRobot)):
         if xPosRobot[Busqueda] >= 950 or xPosRobot[Busqueda] <= -950 or yPosRobot[Busqueda] >= 450 or yPosRobot[Busqueda] <= -450:
             Busqueda=len(xPosRobot)
         else:
@@ -226,9 +227,9 @@ while True:
             ultPosX = xPosRobot[Busqueda]
             Busqueda = Busqueda+1
             time.sleep(0.015)
-    if Busqueda == len(xPosRobot):
-        Robot1 = compound([Robot1,Tambor1])
-        Robot1.rotate(axis=vector(0,1,0),angle=135)
+        # if Busqueda == len(xPosRobot):
+        #     Robot1 = compound([Robot1,Tambor1])
+        #     Robot1.rotate(axis=vector(0,1,0),angle=135)
     #######################################################
     # Robot1c = compound([Robot1,Tambor1]) ; ultPosXc = Robot1c.pos.x ; ultPosZc = Robot1c.pos.z
     # xPosRobotc, yPosRobotc, phi1, xDestiny, yDestiny = LeyControl(ultPosXc, ultPosZc, -900, -400, nDesp)
