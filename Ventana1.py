@@ -17,6 +17,17 @@
 
 # ventana.mainloop()
 
+# import sys
+# import serial as sc
+# from sympy import true
+
+
+# s = sc.Serial('COM3', 9600, timeout=1)
+
+# while True:
+#     salida = s.readline()
+#     print(salida.decode())
+
 from vpython import *
 #---------------------------INICIALIZACION DE VARIABLES -------------------------#
 coorIniciales = vector(0, 6.5, 0)
