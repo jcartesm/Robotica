@@ -78,7 +78,7 @@ def my_Tambores():
     return Tambor_1, Tambor_2, Tambor_3, Tambor_4 
 #---------------------------Definicion del Robot---------------------------------------# 
 
-def robotPrueba(x,y):
+def robotPrueba(x,y,a):
     
     centro = cylinder( pos=vector(x,0,y), axis=vector(0,200,0), radius=3, color=color.yellow) 
     #Definicion de frames central y compartimiento
@@ -109,44 +109,51 @@ def robotPrueba(x,y):
     BrazoL = box(pos=vector(x+2, 27,y-40), size=vector(100,10,8), color=color.blue)
     
     Brazos = compound([AnteBrazoL, AnteBrazoR, BrazoL, BrazoR])
-    robotC = compound([Base, Lado1, Lado2, Lado3, Lado4, Rueda1, Rueda2, RuedaCastor])#, pos=vector(x,20,y))
-    robotF = compound([robotC, Brazos], origin=Brazos.origin)
+    robotF = compound([Base, Lado1, Lado2, Lado3, Lado4, Rueda1, Rueda2, RuedaCastor])#, pos=vector(x,20,y))
+    #robotF = compound([robotC, Brazos], origin=Brazos.origin)
     robotF.pos.x = x
     robotF.pos.y = y
+    Brazos.pos.x = x
+    Brazos.pos.y = y
     #cLabel = label(text='Punto de Control', space=10,height=15, border=4,yoffset=30,font='sans', pos=cRobot.pos)
-    robotF.axis = vector(ra.randint(-10,10), 00, ra.randint(-10,10))
+    #robotF.axis = vector(100, 0, 100)
+    #Brazos.axis = robotF.axis
 
-    return robotF
+    return robotF , Brazos
 
 
-def LeyControl(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp): 
-    ts = 0.1; tf = 10 ; T = np.arange(0,tf+ts,ts) ; N = len(T)
+def LeyControl(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, a): 
+    # El z es nombrado como y en ésta funcion para un mejor entendimiento
+    ts = 0.1; tf = 10 ; T = np.arange(0,tf,ts) ; N = len(T)
     # Seteo de arreglos de ceros para las coordendas y angulos
-    xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
+    xc  = np.zeros(len(T)+1) ; yc  = np.zeros(len(T)+1)
     ph  = np.zeros(len(T)+1) 
     xp  = np.zeros(len(T)+1) ; zp  = np.zeros(len(T)+1)
-    xr  = np.zeros(len(T)+1) ; zr  = np.zeros(len(T)+1)
+    xr  = np.zeros(len(T)+1) ; yr  = np.zeros(len(T)+1)
     u   = np.zeros(len(T)+1) ; w   = np.zeros(len(T)+1)
-    xre = np.zeros(len(T)+1) ; zre = np.zeros(len(T)+1)
+    xre = np.zeros(len(T)+1) ; yre = np.zeros(len(T)+1)
 
-    xc[0] = ulPosX ; zc[0]=ulPosZ
-    ph[0] = math.sin(math.radians(4))
+    xc[0] = ulPosX
+    yc[0] = ulPosZ
+    ph[0] = math.pi/4
 
-    xr[0] = xc[0] + nDesp*math.cos(ph[0])
-    zr[0] = zc[0] + nDesp*math.sin(ph[0])
-    xrD = posDeseadaX ; zrD = posDeseadaZ
+    xr[0] = xc[0] + a * math.cos(ph[0])
+    yr[0] = yc[0] + a * math.sin(ph[0])
+    
+    xrD = posDeseadaX
+    yrD = posDeseadaZ
 
     for i in range(N):
         xre[i] = xrD - xr[i]
-        zre[i] = zrD - zr[i]
+        yre[i] = yrD - yr[i]
         
         #Intervalo de error 
         e = np.array([[xre[i]],
-                      [zre[i]]])
+                      [yre[i]]])
         
         #Matriz Jacobiana
-        J = np.array([[math.cos(ph[i]), -nDesp*math.sin(ph[i])],
-                      [math.sin(ph[i]), nDesp*math.cos(ph[i])]])
+        J = np.array([[math.cos(ph[i]), -a*math.sin(ph[i])],
+                      [math.sin(ph[i]), a*math.cos(ph[i])]])
 
         #Matriz de Ganancia
         K = np.array([[1, 0],
@@ -160,34 +167,23 @@ def LeyControl(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
         w[i] = V[1][1]
 
         #Aplicar las acciones del control al robot
-        xp[i] = u[i]*math.cos(ph[i]) - nDesp*w[i]*math.sin(ph[i])
-        zp[i] = u[i]*math.sin(ph[i]) + nDesp*w[i]*math.cos(ph[i]) 
+        xp[i] = u[i]*math.cos(ph[i]) - a*w[i]*math.sin(ph[i])
+        zp[i] = u[i]*math.sin(ph[i]) + a*w[i]*math.cos(ph[i]) 
 
         #Hallar posiciones del robot
         xr[i+1] = xr[i] + ts*xp[i]
-        zr[i+1] = zr[i] + ts*zp[i]
+        yr[i+1] = yr[i] + ts*zp[i]
         ph[i+1] = ph[i] + ts*w[i]
 
         #posicion final del robot
-        xc[i+1] = xr[i+1] - nDesp*math.cos(ph[i+1])
-        zc[i+1] = zr[i+1] - nDesp*math.sin(ph[i+1])
+        xc[i+1] = xr[i+1] - a*math.cos(ph[i+1])
+        yc[i+1] = yr[i+1] - a*math.sin(ph[i+1])
     
-    return(xc, zc, ph, xrD, zrD,u)
+    return(xc, yc, ph, xrD, yrD,u)
 
 #-------------------------------Variables Iniciales-------------------------------------#
 
-def Run():
-    Tambor1.pos.x = Tambor1.pos.x + 5
-    Tambor1.pos.y = Tambor1.pos.y + 10
-
-
-
-#bRun = button(text="<b>RUN</b>", background=color.green,  
-       #textcolor=color.white,pos=(scene.title_anchor), bind=Run)
-#bExit = button(text="<b>EXIT</b>", background=color.red,     # bind = Funcion al clickear
-       #textcolor=color.white,pos=(scene.title_anchor), bind=sys.exit)
-
-nDesp=40
+nDesp=50
 centroide = [0,0]
 tPosInicial = (nDesp,0,0)
 
@@ -199,63 +195,51 @@ tPosInicial1 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
 #tPosInicial3 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
 #tPosInicial4 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
 
-Robot1 = robotPrueba(0,0) ; ultPosX = Robot1.pos.x ; ultPosZ = Robot1.pos.z
-Robot2 = robotPrueba(0,0) ; ultPosX_2 = Robot2.pos.x ; ultPosZ_2 = Robot2.pos.z
+Robot1 , Brazos1 = robotPrueba(0,0,nDesp) ; ultPosX = Robot1.pos.x ; ultPosZ = Robot1.pos.z
+#Robot2 = robotPrueba(0,0) ; ultPosX_2 = Robot2.pos.x ; ultPosZ_2 = Robot2.pos.z
 #Robot3 = my_Robot(tPosInicial3,nDesp)
 #Robot4 = my_Robot(tPosInicial4,nDesp)
 
 #----------------------------------------------------------------------------#
 
 while True:
-    xPosRobot, yPosRobot, phi1, xTambor, yTambor,velo = LeyControl(ultPosX, ultPosZ, Tambor1.pos.x, Tambor1.pos.z, nDesp)
-    xPosRobot_2, yPosRobot_2, phi2, xTambor_2, yTambor_2, velo2 = LeyControl(ultPosX_2, ultPosZ_2, Tambor2.pos.x, Tambor2.pos.z, nDesp)
-    print(len(xPosRobot))
-    print(velo)
-    Busqueda = 0
-    Bus2 = 0
-    while (Busqueda < len(xPosRobot) and Bus2 < len(xPosRobot_2)):
-        if xPosRobot[Busqueda] >= 950 or xPosRobot[Busqueda] <= -950 or yPosRobot[Busqueda] >= 450 or yPosRobot[Busqueda] <= -450:
-            Busqueda=len(xPosRobot)
-        elif xPosRobot_2[Bus2] >= 950 or xPosRobot_2[Bus2] <= -950 or yPosRobot_2[Bus2] >= 450 or yPosRobot_2[Bus2] <= -450:
-            Bus2=len(xPosRobot_2)
-        else:
-            #if (phi1[cc]<0):
-            #    Robot1.rotate(axis=vector(0,1,0),angle=phi1[cc])
-            #else:
-            #    Robot1.rotate(axis=vector(0,1,0), angle=phi1[cc])
-            Robot1.pos.x = xPosRobot[Busqueda]
-            Robot1.pos.z = yPosRobot[Busqueda]
-            ultPosZ = yPosRobot[Busqueda]
-            ultPosX = xPosRobot[Busqueda]
-            Busqueda = Busqueda+1
+    while (abs(Robot1.pos.x) < abs(Tambor1.pos.x)-nDesp):
+        xPosRobot, yPosRobot, phi1, xTambor, yTambor,velo = LeyControl(ultPosX, ultPosZ, Tambor1.pos.x, Tambor1.pos.z, nDesp)
+        #xPosRobot_2, yPosRobot_2, phi2, xTambor_2, yTambor_2, velo2 = LeyControl(ultPosX_2, ultPosZ_2, Tambor2.pos.x, Tambor2.pos.z, nDesp)
+        Busqueda = 0
+        Bus2 = 0
+        print(Robot1.axis)
+        Robot1.axis = vector(Tambor1.pos.x, 0, Tambor1.pos.z)
+        Brazos1.axis = vector(Tambor1.pos.x, 0, Tambor1.pos.z)
+        while Busqueda < len(xPosRobot): #and Bus2 < len(xPosRobot_2)):
+            if xPosRobot[Busqueda] >= 950 or xPosRobot[Busqueda] <= -950 or yPosRobot[Busqueda] >= 450 or yPosRobot[Busqueda] <= -450:
+                Busqueda=len(xPosRobot)
+            #elif xPosRobot_2[Bus2] >= 950 or xPosRobot_2[Bus2] <= -950 or yPosRobot_2[Bus2] >= 450 or yPosRobot_2[Bus2] <= -450:
+                #Bus2=len(xPosRobot_2)
+            else:
+                #if (phi1[cc]<0):
+                #    Robot1.rotate(axis=vector(0,1,0),angle=phi1[cc])
+                #else:
+                #    Robot1.rotate(axis=vector(0,1,0), angle=phi1[cc])
+                Robot1.pos.x = xPosRobot[Busqueda] + 1
+                Robot1.pos.z = yPosRobot[Busqueda] + 1
+                Brazos1.pos.x = xPosRobot[Busqueda]
+                Brazos1.pos.z = yPosRobot[Busqueda] + nDesp
+                Robot1.axis = vector(abs(Robot1.pos.x)-Tambor1.pos.x, 0, abs(Robot1.pos.z)-Tambor1.pos.z)
+                Brazos1.axis = Robot1.axis
+                ultPosZ = yPosRobot[Busqueda]
+                ultPosX = xPosRobot[Busqueda]
+                Busqueda = Busqueda+1
 
-            Robot2.pos.x = xPosRobot_2[Bus2]
-            Robot2.pos.z = yPosRobot_2[Bus2]
-            ultPosZ_2 = yPosRobot_2[Bus2]
-            ultPosX_2 = xPosRobot_2[Bus2]
-            Bus2 = Bus2+1
-            time.sleep(0.015)
-        # if Busqueda == len(xPosRobot):
-        #     RobotT1 = compound([Robot1,Tambor1])
-        #     RobotT1.rotate(axis=vector(0,1,0),angle=135)
-    #######################################################
-    # Robot1c = compound([Robot1,Tambor1]) ; ultPosXc = Robot1c.pos.x ; ultPosZc = Robot1c.pos.z
-    # xPosRobotc, yPosRobotc, phi1, xDestiny, yDestiny = LeyControl(ultPosXc, ultPosZc, -900, -400, nDesp)
-    # cc = 0
-    # while (cc < len(xPosRobotc)):
-    #     if xPosRobotc[cc] >= 950 or xPosRobotc[cc] <= -950 or yPosRobotc[cc] >= 450 or yPosRobotc[cc] <= -450:
-    #         cc=len(xPosRobotc)
-    #     else:
-    #         #if (phi1[cc]<0):
-    #         #    Robot1.rotate(axis=vector(0,1,0),angle=phi1[cc])
-    #         #else:
-    #         #    Robot1.rotate(axis=vector(0,1,0), angle=phi1[cc])
-    #         if xPosRobotc[cc] == xDestiny and yPosRobotc == yDestiny:
-    #             Robot1c.rotate(axis=vector(0,1,0),angle=phi1[cc])
-    #         Robot1c.pos.x = xPosRobotc[cc]
-    #         Robot1c.pos.z = yPosRobotc[cc]
-    #         ultPosZ = yPosRobotc[cc]
-    #         ultPosX = xPosRobotc[cc]
-    #         cc = cc+1
+                #Robot2.pos.x = xPosRobot_2[Bus2]
+                #Robot2.pos.z = yPosRobot_2[Bus2]
+                #ultPosZ_2 = yPosRobot_2[Bus2]
+                #ultPosX_2 = xPosRobot_2[Bus2]
+                Bus2 = Bus2+1
+                time.sleep(0.015)
+            # if Busqueda == len(xPosRobot):
+            #     RobotT1 = compound([Robot1,Tambor1])
+            #     RobotT1.rotate(axis=vector(0,1,0),angle=135)
+    print("Pene")
     
     rate(100)
