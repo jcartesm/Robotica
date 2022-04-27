@@ -29,7 +29,7 @@ def my_Escenario():
     # arreglo de posiciones de espacio para dejar tambor 
     aD = [D_1.pos, D_2.pos, D_3.pos, D_4.pos]
 
-    return 
+    return aD
 
 def my_Tambores(nTamCoords):
     fTambor = frame(pos=nTamCoords)
@@ -208,20 +208,73 @@ rPOSz = Robot1.pos.z
 
 #----------------------------------------------------------------------------#
 carga1 = 0
-while True:
-    if (abs(Brazos1.pos.x) <= abs(Tambor1.pos.x)):
-        posX1, posZ1, phi1 = LeyControl(rPOSx, rPOSz, Tambor1.pos, nDesp)
-        Busqueda = 0
-        while (Busqueda < len(posX1)):
-            if posX1[Busqueda] >= 1100 or posX1[Busqueda] <= -1100 or posZ1[Busqueda] >= 600 or posZ1[Busqueda] <= -600:
-                Busqueda=len(posX1)
-            else:
-                Robot1.pos.x = posX1[Busqueda]
-                Robot1.pos.z = posZ1[Busqueda]
-                UltPosX = posX1[Busqueda]
-                UltPosZ = posZ1[Busqueda]
-                Busqueda = Busqueda+1
-        carga1 = 1
+# while True:
+#     if (abs(Brazos1.pos.x) <= abs(Tambor1.pos.x)):
+#         posX1, posZ1, phi1 = LeyControl(rPOSx, rPOSz, Tambor1.pos, nDesp)
+#         Busqueda = 0
+#         while (Busqueda < len(posX1)):
+#             if posX1[Busqueda] >= 1100 or posX1[Busqueda] <= -1100 or posZ1[Busqueda] >= 600 or posZ1[Busqueda] <= -600:
+#                 Busqueda=len(posX1)
+#             else:
+#                 Robot1.pos.x = posX1[Busqueda]
+#                 Robot1.pos.z = posZ1[Busqueda]
+#                 UltPosX = posX1[Busqueda]
+#                 UltPosZ = posZ1[Busqueda]
+#                 Busqueda = Busqueda+1
+#         carga1 = 1
+#             #print("Tambor en: ", Tambor1.pos, " , pero Brazos en: ", Robot1.pos)
+#         #if Robot1.pos.x == Tambor1.pos[0]:
+#             #print("hoaaa")
+#             #ti.sleep(0.2)  <- ESTA COSA MATA MI PC XD, PERO HACE QUE EL PROGRAMA NO ME RESPONDA :C **WARNING**
+#         #print("Diferencia de x = ",Tambor1.pos.x-Robot1.pos.x,"  ,  Diferencia de z = ",Tambor1.pos.z-Robot1.pos.z)
+    
+#     # Levanta el tambor si llega al destino
+#     if carga1 == 1:
+#         # Al agregar el Tambor al frame Brazos, se le suma las coordenadas que tenia al tambor
+#         # a las del brazo, por lo que lo aleja mucho, al estar en coordenada (0,0,0), queda
+#         # apegado al otro frame
+#         Tambor1.frame = Brazos1
+#         Tambor1.pos = (40,0,0)
+#         #Brazos1.Label = label(frame=Brazos1,text='Levantar', space=10,height=15, border=4,yoffset=50,font='sans', pos=Brazos1.pos)  
+#         Brazos1.rotate(angle=(1.8*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+#         carga1 = 2
+#     if carga1 == 2:
+#         # Al agregar el Tambor al frame Brazos, se le suma las coordenadas que tenia al tambor
+#         # a las del brazo, por lo que lo aleja mucho, al estar en coordenada (0,0,0), queda
+#         # apegado al otro frame
+#         posX1, posZ1, phi1 = LeyControl(rPOSx, rPOSz, posD[1], nDesp)
+#         Busqueda = 0
+#         while (Busqueda < len(posX1)):
+#             if posX1[Busqueda] >= 1100 or posX1[Busqueda] <= -1100 or posZ1[Busqueda] >= 600 or posZ1[Busqueda] <= -600:
+#                 Busqueda=len(posX1)
+#             else:
+#                 Robot1.pos.x = posX1[Busqueda]
+#                 Robot1.pos.z = posZ1[Busqueda]
+#                 Robot1.axis = vector(posD[1])
+#                 UltPosX = posX1[Busqueda]
+#                 UltPosZ = posZ1[Busqueda]
+#                 Busqueda = Busqueda+1
+                
+                
+#         #Brazos1.Label = label(frame=Brazos1,text='Levantar', space=10,height=15, border=4,yoffset=50,font='sans', pos=Brazos1.pos)  
+#         Brazos1.rotate(angle=-(1.8*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+#         carga1 = 3
+#     rate(120)
+
+if (abs(Brazos1.pos.x) <= abs(Tambor1.pos.x)):
+    posX1, posZ1, phi1 = LeyControl(rPOSx, rPOSz, Tambor1.pos, nDesp)
+    Busqueda = 0
+    while (Busqueda < len(posX1)):
+        if posX1[Busqueda] >= 1100 or posX1[Busqueda] <= -1100 or posZ1[Busqueda] >= 600 or posZ1[Busqueda] <= -600:
+            Busqueda=len(posX1)
+        else:
+            Robot1.pos.x = posX1[Busqueda]
+            Robot1.pos.z = posZ1[Busqueda]
+            UltPosX = posX1[Busqueda]
+            UltPosZ = posZ1[Busqueda]
+            Busqueda = Busqueda+1
+            rate(50)
+    carga1 = 1
             #print("Tambor en: ", Tambor1.pos, " , pero Brazos en: ", Robot1.pos)
         #if Robot1.pos.x == Tambor1.pos[0]:
             #print("hoaaa")
@@ -229,18 +282,37 @@ while True:
         #print("Diferencia de x = ",Tambor1.pos.x-Robot1.pos.x,"  ,  Diferencia de z = ",Tambor1.pos.z-Robot1.pos.z)
     
     # Levanta el tambor si llega al destino
-    if carga1 == 1:
+if carga1 == 1:
         # Al agregar el Tambor al frame Brazos, se le suma las coordenadas que tenia al tambor
         # a las del brazo, por lo que lo aleja mucho, al estar en coordenada (0,0,0), queda
         # apegado al otro frame
-        Tambor1.frame = Brazos1
-        Tambor1.pos = (40,0,0)
+    Tambor1.frame = Brazos1
+    Tambor1.pos = (40,0,0)
         #Brazos1.Label = label(frame=Brazos1,text='Levantar', space=10,height=15, border=4,yoffset=50,font='sans', pos=Brazos1.pos)  
-        Brazos1.rotate(angle=(1.8*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        carga1 = 0
-    rate(120)
-
-
+    Brazos1.rotate(angle=(1.8*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    carga1 = 2
+if carga1 == 2:
+        # Al agregar el Tambor al frame Brazos, se le suma las coordenadas que tenia al tambor
+        # a las del brazo, por lo que lo aleja mucho, al estar en coordenada (0,0,0), queda
+        # apegado al otro frame
+    posX1, posZ1, phi1 = LeyControl(rPOSx, rPOSz, posD[1], nDesp)
+    Busqueda = 0
+    while (Busqueda < len(posX1)):
+        if posX1[Busqueda] >= 1100 or posX1[Busqueda] <= -1100 or posZ1[Busqueda] >= 600 or posZ1[Busqueda] <= -600:
+            Busqueda=len(posX1)
+        else:
+            Robot1.pos.x = posX1[Busqueda]
+            Robot1.pos.z = posZ1[Busqueda]
+            Robot1.axis = vector(posD[1])
+            UltPosX = posX1[Busqueda]
+            UltPosZ = posZ1[Busqueda]
+            Busqueda = Busqueda+1
+            #ti.sleep(0.015)    
+            rate(50)        
+        #Brazos1.Label = label(frame=Brazos1,text='Levantar', space=10,height=15, border=4,yoffset=50,font='sans', pos=Brazos1.pos)  
+    Brazos1.rotate(angle=-(1.8*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    carga1 = 3
+    
 # UltimaPos1 = (ra.randint(-930,930),12,ra.randint(-450,450)) ; UltPosX = UltimaPos1[0] ; UltPosZ = UltimaPos1[2]
 # #tPosInicial2 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
 # #tPosInicial3 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
