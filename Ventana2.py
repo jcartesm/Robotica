@@ -2,13 +2,15 @@ import sys
 from matplotlib.animation import MovieWriter
 import pygame as pyg
 from pygame.locals import *
-import serial as sc
+import serial
 
 
-s = sc.Serial('COM2', 9600, timeout=0)
+s = serial.Serial('COM2', 9600, timeout=0)
 pyg.init()
 
-size = (1280, 720)
+#size = (1280, 720)
+size = (640, 360)
+#size = (500, 200)
 blanco = 255,255,255
 
 screen = pyg.display.set_mode(size)
@@ -22,18 +24,21 @@ while True:
     rec = rec.decode()
     if rec != '':
         rec = int(rec)
-        movimiento = rec
-        
+        movimiento = int(rec)
+        print(movimiento)
+        screen.fill(blanco)
+        pyg.display.update()
+
     for event in pyg.event.get():
         if movimiento == 0:
             if event.type == pyg.MOUSEBUTTONDOWN:
                 movimiento = 1
                 xFlag, yFlag = pyg.mouse.get_pos()
-                x = xFlag - 640
-                y = (yFlag - 360)*-1
+                x = (xFlag*2) - size[0]#640
+                y = ((yFlag*2) - size[1])#360)
                 pos = str(x) + ',' + str(y)
                 s.write(pos.encode())
-                pyg.draw.circle( screen, (255,0,0), (xFlag , yFlag), 20 )
+                pyg.draw.circle( screen, (255,0,0), (xFlag , yFlag), 10 )
                 print(x,y)
         if event.type == QUIT:
             pyg.quit()
