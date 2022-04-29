@@ -1,49 +1,27 @@
-from cProfile import run
-import random as ra,  matplotlib as plt
-from vpython import *
-from vpython import frame
-from matplotlib.pyplot import axis
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from __future__ import division
+from ast import Break
+from turtle import width
+import matplotlib.pyplot as plt
 import numpy as np
+from visual import *
+import random as ra
 import math
-import sys
-import time
+import time as ti
 
-from Ventana1 import Robot
-
-
-########################################################################################
-#                              AJUSTES DE LA ESCENA                                    #
-########################################################################################
-
-scene.width = 1450
-scene.height = 600
-scene.range = 1000
-scene.title = "En la Busqueda del Tambor dorado\n"
-scene.camera.pos = vector(0,500,2000)
-
-
-########################################################################################
-#                                   FUNCIONES                                          #
-########################################################################################
-
-# Coordenadas Aleatorias dado intervalos para x e y
-def RandomCoord(x1,x2,y1,y2):
-    x = ra.randint(x1,x2)
-    y = ra.randint(y1,y2)
-    return x,y
-
-# Creación del suelo donde se moverá el robot
-def my_Escenario():     
-    # pos = coordenada ( x, y (es profundidad, como una eje z), z )   ;   size = ( ancho , alto , largo )
+#---------------------------------Ajuste del Escenario--------------------------------
+# Esta función crea el escenario por donde se moveran los robot.
+# Devuelve:
+#       - Un arreglo con las posiciones de las 4 metas donde se llevarán los tambores
+def my_Escenario():    
+    Ventana = display(title='En busqueda del Tambor Dorado', x=50, y=0, width=1280, height=720, center=(0,0,0))
+    
     Superficie= box(pos=vector(0,0,0),size=vector(2000,2,1000), color = color.white)
     BordeCorto_1 = box(pos=vector(+1000,0,0),size=vector(40,40,1000), color = color.gray(0.5))
     BordeCorto_2 = box(pos=vector(-1000,0,0),size=vector(40,40,1000), color = color.gray(0.5))
     Bordelargo_1 = box(pos=vector(0,0,+500),size=vector(2000,40,40), color = color.gray(0.5))
     Bordelargo_2 = box(pos=vector(0,0,-500),size=vector(2000,40,40), color = color.gray(0.5))
-    #D_1 = box(pos=vector(ra.randint(0,900),5,ra.randint(-400,0)), size=vector(75,10,75), color = color.yellow)
-    #D_2 = box(pos=vector(ra.randint(0,900),5,ra.randint(0,400)), size=vector(75,10,75), color = color.yellow)
-    #D_3 = box(pos=vector(ra.randint(-900,0),5,ra.randint(-400,0)), size=vector(75,10,75), color = color.yellow)
-    #D_4 = box(pos=vector(ra.randint(-900,0),5,ra.randint(0,400)), size=vector(75,10,75), color = color.yellow)
     
     D_1 = box(pos=vector(-900,5,-400), size=vector(75,10,75), color = color.yellow)
     D_2 = box(pos=vector(-900,5,400), size=vector(75,10,75), color = color.yellow)
@@ -52,112 +30,127 @@ def my_Escenario():
 
     # arreglo de posiciones de espacio para dejar tambor 
     aD = [D_1.pos, D_2.pos, D_3.pos, D_4.pos]
-    
-    # Proyecto ultra secreto P.E. utilizando el prototipo N.E.
-    # c1 = sphere(pos=vector(5,150,-500),radius=50, color = color.orange)
-    # c2 = sphere(pos=vector(-5,150,-500),radius=50, color = color.orange)
-    # pe = cylinder(pos=vector(0,0,-500),radius=50,axis=vector(00,150,0), color = color.orange)
-    # c3 = sphere(pos=vector(-50,0,-500),radius=50, color = color.orange)
-    # c4 = sphere(pos=vector(50,0,-500),radius=50, color = color.orange)
 
     return aD
+#---------------------------------Creacion de los Tambores--------------------------------
+# Esta función genera tambores en posiciones aleatorias dentro de cada cuadrante
+# de la superficie donde se movera el robot.
+# Devuelve:
+#       - Los 4 Frames de los Tambores posicionados aleatoriamente
 
-# Creacion de tambores, x { -1000 ..... 1000} y x { -500 ..... 500}
 def my_Tambores():
 
-    #Tambor_1  = cylinder( pos=vector(ra.randint(0,900),0,ra.randint(-400,0)), axis=vector(0,60,0), radius=30, color=color.blue) 
-    #Tambor_2  = cylinder( pos=vector(ra.randint(0,900),0,ra.randint(0,400)), axis=vector(0,60,0), radius=30, color=color.blue)
-    #Tambor_3  = cylinder( pos=vector(ra.randint(-900,0),0,ra.randint(-400,0)), axis=vector(0,60,0), radius=30, color=color.blue)
-    #Tambor_4  = cylinder( pos=vector(ra.randint(-900,0),0,ra.randint(0,400)), axis=vector(0,60,0), radius=30, color=color.blue)
+    fTambor_1 = frame(pos=vector(ra.randint(0,700),0,ra.randint(-300,0)))
+    fTambor_2 = frame(pos=vector(ra.randint(0,900),0,ra.randint(0,300)))
+    fTambor_3 = frame(pos=vector(ra.randint(-900,0),0,ra.randint(-300,0)))
+    fTambor_4 = frame(pos=vector(ra.randint(-700,0),0,ra.randint(0,300)))
     
-    Tambor_1  = cylinder( pos=vector(700,0,-300), axis=vector(0,60,0), radius=30, color=color.blue) 
-    Tambor_2  = cylinder( pos=vector(700,0,300), axis=vector(0,60,0), radius=30, color=color.blue)
-    Tambor_3  = cylinder( pos=vector(-700,0,-300), axis=vector(0,60,0), radius=30, color=color.blue)
-    Tambor_4  = cylinder( pos=vector(-700,0,300), axis=vector(0,60,0), radius=30, color=color.blue)  
+    fTambor_1.Tambor  = cylinder(frame=fTambor_1, axis=vector(0,60,0), radius=30, color=color.blue) 
+    fTambor_2.Tambor  = cylinder(frame=fTambor_2, axis=vector(0,60,0), radius=30, color=color.blue)
+    fTambor_3.Tambor  = cylinder(frame=fTambor_3, axis=vector(0,60,0), radius=30, color=color.blue)
+    fTambor_4.Tambor  = cylinder(frame=fTambor_4, axis=vector(0,60,0), radius=30, color=color.blue)  
     
-    return Tambor_1, Tambor_2, Tambor_3, Tambor_4 
-#---------------------------Definicion del Robot---------------------------------------# 
+    return fTambor_1, fTambor_2, fTambor_3, fTambor_4
 
-def robotPrueba(x,y,a):
+#---------------------------------Creación de Robot's---------------------------------
+# Esta función crea un Robot a partir de coordenadas donde sera posicionado en el comienzo
+# de la ejecucion del programa.
+# Recive:
+#       - Una poscion en el Eje X donde se situará el Robot
+#       - Una poscion en el Eje Z donde se situará el Robot (Eje Z funciona como el Eje Y)
+# Devuelve:
+#       - El Frame del cuerpo del Robot
+#       - El Frame de los brazos del Robot, para psoteriormente unirlos con el Frame del Barril
+
+def RobotMaestro(x,y):
     
-    centro = cylinder( pos=vector(x,0,y), axis=vector(0,200,0), radius=3, color=color.yellow) 
+    # Frames Principales
+    fCuerpo = frame(pos=(x,10,y))
+    fBrazos = frame(frame=fCuerpo)
+
     #Definicion de frames central y compartimiento
-    Base = box(pos=vector(x-90,25,y),size=vector(100,15,80),color=color.red)
+    fCuerpo.Base = box(frame=fCuerpo, pos=vector(x-90,25,y),size=vector(100,15,80),color=color.red)
     
+    # Cuerpo del Robot
     #                                  size (largo , alto , ancho)
     #Lado de adelante
-    Lado1 = box(pos=vector(x-40,31,y), size=vector(50,28,80),color=color.red)
+    fCuerpo.Lado1 = box(frame=fCuerpo, pos=vector(x-40,31,y), size=vector(50,28,80),color=color.red)
     # Lado derecho
-    Lado2 = box(pos=vector(x-90,35,y+35), size=vector(100,20,10),color=color.red)
+    fCuerpo.Lado2 = box(frame=fCuerpo, pos=vector(x-90,35,y+35), size=vector(100,20,10),color=color.red)
     # Lado izquierdo
-    Lado3 = box(pos=vector(x-90,35,y-35), size=vector(100,20,10),color=color.red)
+    fCuerpo.Lado3 = box(frame=fCuerpo, pos=vector(x-90,35,y-35), size=vector(100,20,10),color=color.red)
     #Lado de atras
-    Lado4 = box(pos=vector(x-135,35,y), size=vector(10,20,78),color=color.red)
+    fCuerpo.Lado4 = box(frame=fCuerpo, pos=vector(x-135,35,y), size=vector(10,20,78),color=color.red)
     
-    #Definicion de ruedas
-    Rueda1 = cylinder(pos=vector(x-40,15,y+22),radius=15,axis=vector(00,00,15),color = color.black) 
-    Rueda2 = cylinder(pos=vector(x-40,15,y-36),radius=15,axis=vector(00,00,15),color = color.black)
-    RuedaCastor  = cylinder(pos=vector(x-125,15,y-8),radius=15,axis=vector(00,00,15),color = color.black)
+    # Ruedas del Robot
+    Rueda1 = cylinder(frame=fCuerpo, pos=vector(x-40,15,y+22),radius=15,axis=vector(00,00,15),color = color.black) 
+    Rueda2 = cylinder(frame=fCuerpo, pos=vector(x-40,15,y-36),radius=15,axis=vector(00,00,15),color = color.black)
+    RuedaCastor  = cylinder(frame=fCuerpo, pos=vector(x-125,15,y-8),radius=15,axis=vector(00,00,15),color = color.black)
     #                                        , y (+)derecha (-)izquierda
+    
+    # BRAZOS
     # pos ( +adelante- -atras, arriba, a los lados hacia afuera o hacia dentro)
     #Brazo derecho
-    AnteBrazoR = box(pos=vector(x-35, 31,y+40), size=vector(25,15,10), color=color.blue)
-    BrazoR = box(pos=vector(x+2, 27,y+40), size=vector(100,10,8), color=color.blue)
+    fBrazos.AnteBrazoR = box(frame=fBrazos, pos=vector(x-35, 31,y+40), size=vector(25,15,10), color=color.blue)
+    fBrazos.BrazoR = box(frame=fBrazos, pos=vector(x+2, 27,y+40), size=vector(100,10,8), color=color.blue)
     
     #Brazo izquierdo
-    AnteBrazoL = box(pos=vector(x-35, 31,y-40), size=vector(25,15,10), color=color.blue)
-    BrazoL = box(pos=vector(x+2, 27,y-40), size=vector(100,10,8), color=color.blue)
-    
-    Brazos = compound([AnteBrazoL, AnteBrazoR, BrazoL, BrazoR])
-    robotF = compound([Base, Lado1, Lado2, Lado3, Lado4, Rueda1, Rueda2, RuedaCastor])#, pos=vector(x,20,y))
-    #robotF = compound([robotC, Brazos], origin=Brazos.origin)
-    robotF.pos.x = x
-    robotF.pos.y = y
-    Brazos.pos.x = x
-    Brazos.pos.y = y
-    #cLabel = label(text='Punto de Control', space=10,height=15, border=4,yoffset=30,font='sans', pos=cRobot.pos)
-    #robotF.axis = vector(100, 0, 100)
-    #Brazos.axis = robotF.axis
-
-    return robotF , Brazos
+    fBrazos.AnteBrazoL = box(frame=fBrazos, pos=vector(x-35, 31,y-40), size=vector(25,15,10), color=color.blue)
+    fBrazos.BrazoL = box(frame=fBrazos, pos=vector(x+2, 27,y-40), size=vector(100,10,8), color=color.blue)
 
 
-def LeyControl(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, a): 
-    # El z es nombrado como y en ésta funcion para un mejor entendimiento
-    ts = 0.1; tf = 10 ; T = np.arange(0,tf,ts) ; N = len(T)
+    return fCuerpo , fBrazos
+
+#---------------------------Implementacion del modelo cinematico-----------------------#
+# Este funcion se implementa el modelo cinematico de la ley de control visto en clases:
+# Recive:
+#       - Ultima posicion en eje X del (UltPosX)
+#       - Ultima posicion en eje Z del (UltPosZ) "esto es porque se trabaja con"
+#         con un plano 3D y se reemplazo el Y por el Z.
+#       - La posicion deseada a la que se quiere llegar (PosDeseada)
+#       - El valor de la distancia desde el eje de las ruedas al punto de control (nDesp)
+# Devuelve:
+#       - Posicion final en eje X (xc)
+#       - Posicion final en eje Z (zc)
+#       - Angulo phi (ph)
+#       - Arreglo de errores eje Z (zre)
+#       - Arreglo de errores eje X (xre)
+#       - Arreglo de tiempo de ejecucion (T)
+#       - Arreglo de velocidad (u)
+#       - Arreglo de Velocidad Angular (w)
+
+def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp): 
+    ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) ; N = len(T)
     # Seteo de arreglos de ceros para las coordendas y angulos
-    xc  = np.zeros(len(T)+1) ; yc  = np.zeros(len(T)+1)
+    xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
     ph  = np.zeros(len(T)+1) 
     xp  = np.zeros(len(T)+1) ; zp  = np.zeros(len(T)+1)
-    xr  = np.zeros(len(T)+1) ; yr  = np.zeros(len(T)+1)
+    xr  = np.zeros(len(T)+1) ; zr  = np.zeros(len(T)+1)
     u   = np.zeros(len(T)+1) ; w   = np.zeros(len(T)+1)
-    xre = np.zeros(len(T)+1) ; yre = np.zeros(len(T)+1)
+    xre = np.zeros(len(T)+1) ; zre = np.zeros(len(T)+1)
 
-    xc[0] = ulPosX
-    yc[0] = ulPosZ
-    ph[0] = math.pi/4
+    xc[0] = UltPosX ; zc[0]=UltPosZ
+    ph[0] = math.sin(math.radians(4))
 
-    xr[0] = xc[0] + a * math.cos(ph[0])
-    yr[0] = yc[0] + a * math.sin(ph[0])
-    
-    xrD = posDeseadaX
-    yrD = posDeseadaZ
+    xr[0] = xc[0] + nDesp*math.cos(ph[0])
+    zr[0] = zc[0] + nDesp*math.sin(ph[0])
+    xrD = PosDeseada[0] ; zrD = PosDeseada[2]
 
     for i in range(N):
         xre[i] = xrD - xr[i]
-        yre[i] = yrD - yr[i]
+        zre[i] = zrD - zr[i]
         
         #Intervalo de error 
         e = np.array([[xre[i]],
-                      [yre[i]]])
+                      [zre[i]]])
         
         #Matriz Jacobiana
-        J = np.array([[math.cos(ph[i]), -a*math.sin(ph[i])],
-                      [math.sin(ph[i]), a*math.cos(ph[i])]])
+        J = np.array([[math.cos(ph[i]), -nDesp*math.sin(ph[i])],
+                      [math.sin(ph[i]), nDesp*math.cos(ph[i])]])
 
         #Matriz de Ganancia
-        K = np.array([[1, 0],
-                      [0, 1]])
+        K = np.array([[1.5, 0],
+                      [0, 1.5]])
 
         #Ley de control del robot
         V = np.linalg.inv(J)*K*e
@@ -167,79 +160,441 @@ def LeyControl(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, a):
         w[i] = V[1][1]
 
         #Aplicar las acciones del control al robot
-        xp[i] = u[i]*math.cos(ph[i]) - a*w[i]*math.sin(ph[i])
-        zp[i] = u[i]*math.sin(ph[i]) + a*w[i]*math.cos(ph[i]) 
+        xp[i] = u[i]*math.cos(ph[i]) - nDesp*w[i]*math.sin(ph[i])
+        zp[i] = u[i]*math.sin(ph[i]) + nDesp*w[i]*math.cos(ph[i]) 
 
         #Hallar posiciones del robot
         xr[i+1] = xr[i] + ts*xp[i]
-        yr[i+1] = yr[i] + ts*zp[i]
+        zr[i+1] = zr[i] + ts*zp[i]
         ph[i+1] = ph[i] + ts*w[i]
 
         #posicion final del robot
-        xc[i+1] = xr[i+1] - a*math.cos(ph[i+1])
-        yc[i+1] = yr[i+1] - a*math.sin(ph[i+1])
+        xc[i+1] = xr[i+1] - nDesp*math.cos(ph[i+1])
+        zc[i+1] = zr[i+1] - nDesp*math.sin(ph[i+1])
     
-    return(xc, yc, ph, xrD, yrD,u)
+    return(xc, zc, ph, xre, zre, T, u, w)
 
 #-------------------------------Variables Iniciales-------------------------------------#
 
-nDesp=50
+nDesp=1
 centroide = [0,0]
 tPosInicial = (nDesp,0,0)
+
+#---------------------Creacion del escenario y ploteo de tambores---------------------------#
 
 posD = my_Escenario() 
 Tambor1, Tambor2, Tambor3, Tambor4 = my_Tambores() 
 
-tPosInicial1 = vector(ra.randint(-830,830),40,ra.randint(-430,430)) 
-#tPosInicial2 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
-#tPosInicial3 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
-#tPosInicial4 = vector(ra.randint(-830,830),40,ra.randint(-430,430))
+#---------------------Ceacion de Objetos Robot, del cual obtenemos el cuerpo y los brazoz---------------------------#
 
-Robot1 , Brazos1 = robotPrueba(0,0,nDesp) ; ultPosX = Robot1.pos.x ; ultPosZ = Robot1.pos.z
-#Robot2 = robotPrueba(0,0) ; ultPosX_2 = Robot2.pos.x ; ultPosZ_2 = Robot2.pos.z
-#Robot3 = my_Robot(tPosInicial3,nDesp)
-#Robot4 = my_Robot(tPosInicial4,nDesp)
+Robot_1 , Brazos_1 = RobotMaestro(0,0)
+rPOSx = Robot_1.pos.x
+rPOSz = Robot_1.pos.z
+
+Robot_2 , Brazos_2 = RobotMaestro(0,0)
+rPOSx_2 = Robot_2.pos.x
+rPOSz_2 = Robot_2.pos.z
+
+Robot_3 , Brazos_3 = RobotMaestro(0,0)
+rPOSx_3 = Robot_3.pos.x
+rPOSz_3 = Robot_3.pos.z
+
+Robot_4 , Brazos_4 = RobotMaestro(0,0)
+rPOSx_4 = Robot_4.pos.x
+rPOSz_4 = Robot_4.pos.z
+
 
 #----------------------------------------------------------------------------#
+carga1 = 0
 
-while True:
-    while (abs(Robot1.pos.x) < abs(Tambor1.pos.x)-nDesp):
-        xPosRobot, yPosRobot, phi1, xTambor, yTambor,velo = LeyControl(ultPosX, ultPosZ, Tambor1.pos.x, Tambor1.pos.z, nDesp)
-        #xPosRobot_2, yPosRobot_2, phi2, xTambor_2, yTambor_2, velo2 = LeyControl(ultPosX_2, ultPosZ_2, Tambor2.pos.x, Tambor2.pos.z, nDesp)
-        Busqueda = 0
-        Bus2 = 0
-        print(Robot1.axis)
-        Robot1.axis = vector(Tambor1.pos.x, 0, Tambor1.pos.z)
-        Brazos1.axis = vector(Tambor1.pos.x, 0, Tambor1.pos.z)
-        while Busqueda < len(xPosRobot): #and Bus2 < len(xPosRobot_2)):
-            if xPosRobot[Busqueda] >= 950 or xPosRobot[Busqueda] <= -950 or yPosRobot[Busqueda] >= 450 or yPosRobot[Busqueda] <= -450:
-                Busqueda=len(xPosRobot)
-            #elif xPosRobot_2[Bus2] >= 950 or xPosRobot_2[Bus2] <= -950 or yPosRobot_2[Bus2] >= 450 or yPosRobot_2[Bus2] <= -450:
-                #Bus2=len(xPosRobot_2)
-            else:
-                #if (phi1[cc]<0):
-                #    Robot1.rotate(axis=vector(0,1,0),angle=phi1[cc])
-                #else:
-                #    Robot1.rotate(axis=vector(0,1,0), angle=phi1[cc])
-                Robot1.pos.x = xPosRobot[Busqueda] + 1
-                Robot1.pos.z = yPosRobot[Busqueda] + 1
-                Brazos1.pos.x = xPosRobot[Busqueda]
-                Brazos1.pos.z = yPosRobot[Busqueda] + nDesp
-                Robot1.axis = vector(abs(Robot1.pos.x)-Tambor1.pos.x, 0, abs(Robot1.pos.z)-Tambor1.pos.z)
-                Brazos1.axis = Robot1.axis
-                ultPosZ = yPosRobot[Busqueda]
-                ultPosX = xPosRobot[Busqueda]
-                Busqueda = Busqueda+1
+if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
 
-                #Robot2.pos.x = xPosRobot_2[Bus2]
-                #Robot2.pos.z = yPosRobot_2[Bus2]
-                #ultPosZ_2 = yPosRobot_2[Bus2]
-                #ultPosX_2 = xPosRobot_2[Bus2]
-                Bus2 = Bus2+1
-                time.sleep(0.015)
-            # if Busqueda == len(xPosRobot):
-            #     RobotT1 = compound([Robot1,Tambor1])
-            #     RobotT1.rotate(axis=vector(0,1,0),angle=135)
-    print("Pene")
+    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambor1.pos, nDesp)
+    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambor2.pos, nDesp)
+    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambor3.pos, nDesp)
+    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambor4.pos, nDesp)
+
+    BusQ = 0
+
+    while (BusQ < len(posX1) ):
+        if posX1[BusQ] >= 1100 or posX1[BusQ] <= -1100 or posZ1[BusQ] >= 600 or posZ1[BusQ] <= -600:
+            BusQ=len(posX1)
+        else:
+            Robot_1.pos.x = posX1[BusQ]
+            Robot_1.pos.z = posZ1[BusQ]
+            UltPosX = posX1[BusQ]
+            UltPosZ = posZ1[BusQ]
+
+            Robot_2.pos.x = posX_2[BusQ]
+            Robot_2.pos.z = posZ_2[BusQ]
+            UltPosX_2 = posX_2[BusQ]
+            UltPosZ_2 = posZ_2[BusQ]
+
+            Robot_3.pos.x = posX_3[BusQ]
+            Robot_3.pos.z = posZ_3[BusQ]
+            UltPosX_3 = posX_3[BusQ]
+            UltPosZ_3 = posZ_3[BusQ]
+
+            Robot_4.pos.x = posX_4[BusQ]
+            Robot_4.pos.z = posZ_4[BusQ]
+            UltPosX_4 = posX_4[BusQ]
+            UltPosZ_4 = posZ_4[BusQ]            
+            
+            BusQ = BusQ + 1
+
+            rate(50)
+    carga1 = 1
+
     
-    rate(100)
+    # Levanta el tambor si llega al destino
+if carga1 == 1:
+    
+    Tambor1.frame = Brazos_1
+    Tambor1.pos = (40,0,0)
+
+    Tambor2.frame = Brazos_2
+    Tambor2.pos = (40,0,0)
+
+    Tambor3.frame = Brazos_3
+    Tambor3.pos = (40,0,0)
+
+    Tambor4.frame = Brazos_4
+    Tambor4.pos = (40,0,0)    
+
+    # Animacion de la rotacion de los brazos 
+    rot = 0
+    while rot < 4:
+        Brazos_1.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+        Brazos_2.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+        Brazos_3.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+        Brazos_4.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
+        rot = rot + 1
+        rate(1)
+
+    carga1 = 2
+if carga1 == 2:
+
+    posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(rPOSx, rPOSz, posD[0], nDesp)
+    posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(rPOSx_2, rPOSz_2, posD[1], nDesp)
+    posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(rPOSx_3, rPOSz_3, posD[2], nDesp)
+    posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(rPOSx_4, rPOSz_4, posD[3], nDesp)    
+
+    BusQ = 0
+ 
+    while (BusQ < len(posX1)):
+        if posX1[BusQ] >= 1100 or posX1[BusQ] <= -1100 or posZ1[BusQ] >= 600 or posZ1[BusQ] <= -600:
+            BusQ=len(posX1)
+        else:
+            Robot_1.pos.x = posX1[BusQ]
+            Robot_1.pos.z = posZ1[BusQ]
+            Robot_1.axis = vector(posD[0])
+            UltPosX = posX1[BusQ]
+            UltPosZ = posZ1[BusQ]
+
+            Robot_2.pos.x = posX_2[BusQ]
+            Robot_2.pos.z = posZ_2[BusQ]
+            Robot_2.axis = vector(posD[1])
+            UltPosX_2 = posX_2[BusQ]
+            UltPosZ_2 = posZ_2[BusQ]
+
+            Robot_3.pos.x = posX_3[BusQ]
+            Robot_3.pos.z = posZ_3[BusQ]
+            Robot_3.axis = vector(posD[2])
+            UltPosX_3 = posX_3[BusQ]
+            UltPosZ_3 = posZ_3[BusQ]
+
+            Robot_4.pos.x = posX_4[BusQ]
+            Robot_4.pos.z = posZ_4[BusQ]
+            Robot_4.axis = vector(posD[3])
+            UltPosX_4 = posX_4[BusQ]
+            UltPosZ_4 = posZ_4[BusQ]            
+
+
+            BusQ = BusQ + 1
+
+  
+            rate(50) 
+    
+    # Animacion de la rotacion de los brazos  
+    rot = 0    
+    while rot < 4:
+        Brazos_1.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+        Brazos_2.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+        Brazos_3.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
+        Brazos_4.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0)) 
+        rot = rot + 1
+        rate(1)
+    carga1 = 3
+
+
+
+################### GRAFICAS ####################
+
+# 
+# Tratamiento de los arreglos haciendolos positivos para obtener graficas descenentes y 
+# observar de mejor manera la disminucion del error
+
+for i in range(len(eX)):
+    eZ[i] = abs(eZ[i])
+    eX[i] = abs(eX[i])    
+    eZ_2[i] = abs(eZ_2[i])
+    eX_3[i] = abs(eX_3[i])
+    eZ_3[i] = abs(eZ_3[i])
+    eZ_4[i] = abs(eZ_4[i])
+    eX_4[i] = abs(eX_4[i])
+    vel_1[i] = abs(vel_1[i])
+    vel_2[i] = abs(vel_2[i])
+    vel_3[i] = abs(vel_3[i])
+    vel_4[i] = abs(vel_4[i])
+    velA_1[i] = abs(velA_1[i])
+    velA_2[i] = abs(velA_2[i])
+    velA_3[i] = abs(velA_3[i])
+    velA_4[i] = abs(velA_4[i])
+
+arrX_1 = np.delete(eX, 300)
+arrZ_1 = np.delete(eZ, 300)
+
+arrX_2 = np.delete(eX_2, 300)
+arrZ_2 = np.delete(eZ_2, 300)
+
+arrX_3 = np.delete(eX_3, 300)
+arrZ_3 = np.delete(eZ_3, 300)
+
+arrX_4 = np.delete(eX_4, 300)
+arrZ_4 = np.delete(eZ_4, 300)
+
+arV_1 = np.delete(vel_1, 300)
+arV_2 = np.delete(vel_2, 300)
+arV_3 = np.delete(vel_3, 300)
+arV_4 = np.delete(vel_4, 300)
+
+arVA_1 = np.delete(velA_1, 300)
+arVA_2 = np.delete(velA_2, 300)
+arVA_3 = np.delete(velA_3, 300)
+arVA_4 = np.delete(velA_4, 300)
+
+# 
+#   Aqui creamos las figuras y le asignamos una variable a los subplots para luego plotear
+#   de acuerdo a esta variable en cada sector designado como matriz
+
+fig_E, ax_E = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("ERRORES DE LOS 4 ROBOTS")
+
+fig_V, ax_V = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("VELOCIDAD")
+
+fig_P, ax_P = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("POSICION")
+
+fig_acele, ax_acele = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("ACELERACION")
+
+fig_VA, ax_VA = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("VELOCIDAD ANGULAR")
+
+fig_PA, ax_PA = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+plt.suptitle("POSICION ANGULAR")
+
+################### VENTANA DE ERROR #################### 
+
+#   En este apartado de grafica el error obtenido de la funcion de ley de control
+#   en donde se ve reflejado como este va disminuyendo mientras se acerca a su  
+#   destino
+
+ax_E[0, 0].plot(temp,arrX_1,'b',linewidth = 2, label='error X')
+ax_E[0, 0].plot(temp,arrZ_1,'r',linewidth = 2,  label='error Z')
+ax_E[0, 0].legend(loc='upper right')
+ax_E[0, 0].set_xlabel('Tiempo [s]')
+ax_E[0, 0].set_ylabel('Error [m]')
+ax_E[0, 0].set_title("Robot I")
+ax_E[0, 0].grid()
+
+ax_E[0, 1].plot(temp,arrX_2,'b',linewidth = 2, label='error X')
+ax_E[0, 1].plot(temp,arrZ_2,'r',linewidth = 2,  label='error Z')
+ax_E[0, 1].legend(loc='upper right')
+ax_E[0, 1].set_xlabel('Tiempo [s]')
+ax_E[0, 1].set_ylabel('Error [m]')
+ax_E[0, 1].set_title("Robot II")
+ax_E[0, 1].grid()
+
+ax_E[1, 0].plot(temp,arrX_3,'b',linewidth = 2, label='error X')
+ax_E[1, 0].plot(temp,arrZ_3,'r',linewidth = 2,  label='error Z')
+ax_E[1, 0].legend(loc='upper right')
+ax_E[1, 0].set_xlabel('Tiempo [s]')
+ax_E[1, 0].set_ylabel('Error [m]')
+ax_E[1, 0].set_title("Robot III")
+ax_E[1, 0].grid()
+
+ax_E[1, 1].plot(temp,arrX_4,'b',linewidth = 2, label='error X')
+ax_E[1, 1].plot(temp,arrZ_4,'r',linewidth = 2,  label='error Z')
+ax_E[1, 1].legend(loc='upper right')
+ax_E[1, 1].set_xlabel('Tiempo [s]')
+ax_E[1, 1].set_ylabel('Error [m]')
+ax_E[1, 1].set_title("Robot IV")
+ax_E[1, 1].grid()
+
+################### VELOCIDAD, ACELERACION, POSISION #################### 
+
+#   En este apartado se grafica la velociad, posicion y aceleracion durante el tiempo 
+#   de los 4 robots en la simulacion
+# 
+
+#########################################################################
+ax_V[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Velocidad')
+ax_V[0, 0].legend(loc='upper right')
+ax_V[0, 0].set_xlabel('Tiempo [s]')
+ax_V[0, 0].set_ylabel('Distancia [m]')
+ax_V[0, 0].set_title("Robot I")
+ax_V[0, 0].grid()
+
+ax_V[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Velocidad')
+ax_V[0, 1].legend(loc='upper right')
+ax_V[0, 1].set_xlabel('Tiempo [s]')
+ax_V[0, 1].set_ylabel('Distancia [m]')
+ax_V[0, 1].set_title("Robot II")
+ax_V[0, 1].grid()
+
+ax_V[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Velocidad')
+ax_V[1, 0].legend(loc='upper right')
+ax_V[1, 0].set_xlabel('Tiempo [s]')
+ax_V[1, 0].set_ylabel('Distancia [m]')
+ax_V[1, 0].set_title("Robot III")
+ax_V[1, 0].grid()
+
+ax_V[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Velocidad')
+ax_V[1, 1].legend(loc='upper right')
+ax_V[1, 1].set_xlabel('Tiempo [s]')
+ax_V[1, 1].set_ylabel('Distancia [m]')
+ax_V[1, 1].set_title("Robot IV")
+ax_V[1, 1].grid()
+
+#####################################################################
+
+# ax_P[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Posicion')
+ax_P[0, 0].legend(loc='upper right')
+ax_P[0, 0].set_xlabel('Tiempo [s]')
+ax_P[0, 0].set_ylabel('Posicion [m]')
+ax_P[0, 0].set_title("Robot I")
+ax_P[0, 0].grid()
+
+# ax_P[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Posicion')
+ax_P[0, 1].legend(loc='upper right')
+ax_P[0, 1].set_xlabel('Tiempo [s]')
+ax_P[0, 1].set_ylabel('Posicion [m]')
+ax_P[0, 1].set_title("Robot II")
+ax_P[0, 1].grid()
+
+# ax_P[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Posicion')
+ax_P[1, 0].legend(loc='upper right')
+ax_P[1, 0].set_xlabel('Tiempo [s]')
+ax_P[1, 0].set_ylabel('Posicion [m]')
+ax_P[1, 0].set_title("Robot III")
+ax_P[1, 0].grid()
+
+# ax_P[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Posicion')
+ax_P[1, 1].legend(loc='upper right')
+ax_P[1, 1].set_xlabel('Tiempo [s]')
+ax_P[1, 1].set_ylabel('Posicion [m]')
+ax_P[1, 1].set_title("Robot IV")
+ax_P[1, 1].grid()
+
+#####################################################################
+
+# ax_acele[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Aceleracion')
+ax_acele[0, 0].legend(loc='upper right')
+ax_acele[0, 0].set_xlabel('Tiempo [s²]')
+ax_acele[0, 0].set_ylabel('Distancia [m]')
+ax_acele[0, 0].set_title("Robot I")
+ax_acele[0, 0].grid()
+
+# ax_acele[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Aceleracion')
+ax_acele[0, 1].legend(loc='upper right')
+ax_acele[0, 1].set_xlabel('Tiempo [s²]')
+ax_acele[0, 1].set_ylabel('Distancia [m]')
+ax_acele[0, 1].set_title("Robot II")
+ax_acele[0, 1].grid()
+
+# ax_acele[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Aceleracion')
+ax_acele[1, 0].legend(loc='upper right')
+ax_acele[1, 0].set_xlabel('Tiempo [s²]')
+ax_acele[1, 0].set_ylabel('Distancia [m]')
+ax_acele[1, 0].set_title("Robot III")
+ax_acele[1, 0].grid()
+
+# ax_acele[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Aceleracion')
+ax_acele[1, 1].legend(loc='upper right')
+ax_acele[1, 1].set_xlabel('Tiempo [s²]')
+ax_acele[1, 1].set_ylabel('Distancia [m]')
+ax_acele[1, 1].set_title("Robot IV")
+ax_acele[1, 1].grid()
+
+################### VELOCIDAD Y POSICION ANGULAR #################### 
+
+#  En este apartado se emplea los subplots generados de la tercera figura para graficar la velocidad angular de cada robot
+#  medida en radianes/segundos 
+# 
+# 
+
+ax_VA[0, 0].plot(temp,arVA_1,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[0, 0].legend(loc='upper right')
+ax_VA[0, 0].set_xlabel('Tiempo [s]')
+ax_VA[0, 0].set_ylabel('w [rad]')
+ax_VA[0, 0].set_title("Robot I")
+ax_VA[0, 0].grid()
+
+ax_VA[0, 1].plot(temp,arVA_2,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[0, 1].legend(loc='upper right')
+ax_VA[0, 1].set_xlabel('Tiempo [s]')
+ax_VA[0, 1].set_ylabel('w [Rad]')
+ax_VA[0, 1].set_title("Robot II")
+ax_VA[0, 1].grid()
+
+ax_VA[1, 0].plot(temp,arVA_3,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[1, 0].legend(loc='upper right')
+ax_VA[1, 0].set_xlabel('Tiempo [s]')
+ax_VA[1, 0].set_ylabel('w [rad]')
+ax_VA[1, 0].set_title("Robot III")
+ax_VA[1, 0].grid()
+
+ax_VA[1, 1].plot(temp,arVA_4,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[1, 1].legend(loc='upper right')
+ax_VA[1, 1].set_xlabel('Tiempo [s]')
+ax_VA[1, 1].set_ylabel('w [rad]')
+ax_VA[1, 1].set_title("Robot IV")
+ax_VA[1, 1].grid()
+
+########################################################################
+
+# ax_PA[0, 0].plot(temp,arVA_1,'b',linewidth = 2, label='Posicion')
+ax_PA[0, 0].legend(loc='upper right')
+ax_PA[0, 0].set_xlabel('Tiempo [s]')
+ax_PA[0, 0].set_ylabel('Pw')
+ax_PA[0, 0].set_title("Robot I")
+ax_PA[0, 0].grid()
+
+# ax_PA[0, 1].plot(temp,arVA_2,'b',linewidth = 2, label='Posicion')
+ax_PA[0, 1].legend(loc='upper right')
+ax_PA[0, 1].set_xlabel('Tiempo [s]')
+ax_PA[0, 1].set_ylabel('Pw')
+ax_PA[0, 1].set_title("Robot II")
+ax_PA[0, 1].grid()
+
+# ax_PA[1, 0].plot(temp,arVA_3,'b',linewidth = 2, label='Posicion')
+ax_PA[1, 0].legend(loc='upper right')
+ax_PA[1, 0].set_xlabel('Tiempo [s]')
+ax_PA[1, 0].set_ylabel('Pw')
+ax_PA[1, 0].set_title("Robot III")
+ax_PA[1, 0].grid()
+
+# ax_PA[1, 1].plot(temp,arVA_4,'b',linewidth = 2, label='Posicion')
+ax_PA[1, 1].legend(loc='upper right')
+ax_PA[1, 1].set_xlabel('Tiempo [s]')
+ax_PA[1, 1].set_ylabel('Pw')
+ax_PA[1, 1].set_title("Robot IV")
+ax_PA[1, 1].grid()
+
+
+
+plt.show()
+
+
