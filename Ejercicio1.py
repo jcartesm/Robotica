@@ -125,6 +125,7 @@ def RobotMaestro(x,y):
 
 def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg): 
     ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) 
+    
     # Seteo de arreglos de ceros para las coordendas y angulos
     xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
     ph  = np.zeros(len(T)+1) 
@@ -133,17 +134,18 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
     u   = np.zeros(len(T)+1) ; w   = np.zeros(len(T)+1)
     xre = np.zeros(len(T)+1) ; zre = np.zeros(len(T)+1)
 
-    # 
+    # Posición actual del Robot
     xc[0] = UltPosX ; zc[0]=UltPosZ
     ph[0] = math.sin(math.radians(4))
 
-    # 
+    # Posición de partida del Robot
     xr[0] = xc[0] + nDesp*math.cos(ph[0])
     zr[0] = zc[0] + nDesp*math.sin(ph[0])
     xrD = PosDeseada[0] ; zrD = PosDeseada[2]
 
     # 
     for i in range(len(T)):
+        #Errores de control
         xre[i] = xrD - xr[i]
         zre[i] = zrD - zr[i]
         
@@ -190,9 +192,16 @@ tPosInicial = (nDesp,0,0)
 #---------------------Creacion del escenario y ploteo de tambores---------------------------#
 
 posD = CreacionEscenario() 
+
+# Des-ordena el orden de los destinos finales
+# para asignarlos de forma aleatoria
 ra.shuffle(posD)
+
 Tambor1, Tambor2, Tambor3, Tambor4 = CreacionTambores() 
 Tambores = [Tambor1, Tambor2, Tambor3, Tambor4]
+
+# Des-ordena el orden de los tambores
+# para asignarlos de forma aleatoria
 ra.shuffle(Tambores)
 
 #---------------------Ceacion de Objetos Robot, del cual obtenemos el cuerpo y los brazoz---------------------------#
@@ -219,140 +228,146 @@ TagR4 = label(pos=(Robot_4.pos.x, 150, Robot_4.pos.z), text='Robot 4', font='san
 
 
 #----------------------------------------------------------------------------#
+
+# Valor de la Matriz de ganancia
 valorMG = 1.5
-carga1 = 0
 
-if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
+################### Ejecucion del programa ####################
 
-    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp, valorMG)
-    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp, valorMG)
-    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp, valorMG)
-    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp, valorMG)
+# Para comenzar, se utliza la Ley de control para cada Robot, utilizando como
+# punto deseado las coordenadas de un tambor, el cual fue asignado aleatoriamente.
+# Se almacenan los arreglos para utilizarlos mas adelante.
 
-    BusQ = 0
+posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp, valorMG)
+posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp, valorMG)
+posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp, valorMG)
+posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp, valorMG)
 
-    while (BusQ < len(posX1) ):
-        if posX1[BusQ] >= 1100 or posX1[BusQ] <= -1100 or posZ1[BusQ] >= 600 or posZ1[BusQ] <= -600:
-            BusQ=len(posX1)
-        else:
-            Robot_1.pos.x = posX1[BusQ]
-            Robot_1.pos.z = posZ1[BusQ]
-            Robot_1.axis = vector(Tambores[0].pos)
-            TagR1.pos = (Robot_1.pos.x, 150, Robot_1.pos.z)
-            UltPosX = posX1[BusQ]
-            UltPosZ = posZ1[BusQ]
+# Variable que permite recorrer los datos y salir del while
+BusQ = 0
 
-            Robot_2.pos.x = posX_2[BusQ]
-            Robot_2.pos.z = posZ_2[BusQ]
-            Robot_2.axis = vector(Tambores[1].pos)
-            TagR2.pos = (Robot_2.pos.x, 150, Robot_2.pos.z)
-            UltPosX_2 = posX_2[BusQ]
-            UltPosZ_2 = posZ_2[BusQ]
+# Recorre los arreglos obtenidos anteriormente para
+# mover cada uno de loos robot a los tambores asignados
+while (BusQ < len(posX1) ):
+    # Movimiento del robot 1
+    Robot_1.pos.x = posX1[BusQ]
+    Robot_1.pos.z = posZ1[BusQ]
+    Robot_1.axis = vector(Tambores[0].pos)
+    TagR1.pos = (Robot_1.pos.x, 150, Robot_1.pos.z)
+    UltPosX = posX1[BusQ]
+    UltPosZ = posZ1[BusQ]
+    
+    # Movimiento del robot 2
+    Robot_2.pos.x = posX_2[BusQ]
+    Robot_2.pos.z = posZ_2[BusQ]
+    Robot_2.axis = vector(Tambores[1].pos)
+    TagR2.pos = (Robot_2.pos.x, 150, Robot_2.pos.z)
+    UltPosX_2 = posX_2[BusQ]
+    UltPosZ_2 = posZ_2[BusQ]
 
-            Robot_3.pos.x = posX_3[BusQ]
-            Robot_3.pos.z = posZ_3[BusQ]
-            Robot_3.axis = vector(Tambores[2].pos)
-            TagR3.pos = (Robot_3.pos.x, 150, Robot_3.pos.z)
-            UltPosX_3 = posX_3[BusQ]
-            UltPosZ_3 = posZ_3[BusQ]
+    # Movimiento del robot 3
+    Robot_3.pos.x = posX_3[BusQ]
+    Robot_3.pos.z = posZ_3[BusQ]
+    Robot_3.axis = vector(Tambores[2].pos)
+    TagR3.pos = (Robot_3.pos.x, 150, Robot_3.pos.z)
+    UltPosX_3 = posX_3[BusQ]
+    UltPosZ_3 = posZ_3[BusQ]
 
-            Robot_4.pos.x = posX_4[BusQ]
-            Robot_4.pos.z = posZ_4[BusQ]
-            Robot_4.axis = vector(Tambores[3].pos)
-            TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
-            UltPosX_4 = posX_4[BusQ]
-            UltPosZ_4 = posZ_4[BusQ]            
+    # Movimiento del robot 4
+    Robot_4.pos.x = posX_4[BusQ]
+    Robot_4.pos.z = posZ_4[BusQ]
+    Robot_4.axis = vector(Tambores[3].pos)
+    TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
+    UltPosX_4 = posX_4[BusQ]
+    UltPosZ_4 = posZ_4[BusQ]            
             
-            rate(10)
-        BusQ = BusQ + 1
-    carga1 = 1
+    rate(250)
+    BusQ = BusQ + 1
 
-    
-    # Levanta el tambor si llega al destino
-if carga1 == 1:
-    
-    Tambores[0].frame = Brazos_1
-    Tambores[0].pos = (40,0,0)
+# Una vez lleago a sus destinos correspondientes, se junta 
+# los Frame de los brazos de cada robot con su respectivo tambor
+Tambores[0].frame = Brazos_1
+Tambores[0].pos = (40,0,0)
 
-    Tambores[1].frame = Brazos_2
-    Tambores[1].pos = (40,0,0)
+Tambores[1].frame = Brazos_2
+Tambores[1].pos = (40,0,0)
 
-    Tambores[2].frame = Brazos_3
-    Tambores[2].pos = (40,0,0)
+Tambores[2].frame = Brazos_3
+Tambores[2].pos = (40,0,0)
 
-    Tambores[3].frame = Brazos_4
-    Tambores[3].pos = (40,0,0)    
+Tambores[3].frame = Brazos_4
+Tambores[3].pos = (40,0,0)    
 
-    # Animacion de la rotacion de los brazos 
-    rot = 0
-    while rot < 4:
-        Brazos_1.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        Brazos_2.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        Brazos_3.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        Brazos_4.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
-        rot = rot + 1
-        rate(5)
+# Animacion de la rotacion de los brazos
+# en el que se rota de a poco los brazos junto a su tambor 
+rot = 0
+while rot < 4:
+    Brazos_1.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    Brazos_2.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    Brazos_3.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    Brazos_4.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
+    rot = rot + 1
+    rate(100)
 
-    carga1 = 2
-if carga1 == 2:
+# Se vuelve a utilizar la ley de control con cada robot, pero 
+# esta vez, utilizando los cuadros amarillo como destino, donde
+# depositaran su tambor.
+posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp, 1.7)
+posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp, 1.7)
+posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp, 1.7)
+posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp, 1.7)    
 
-    posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp, 1.7)
-    posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp, 1.7)
-    posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp, 1.7)
-    posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp, 1.7)    
+# Variable que permite recorrer los datos y salir del while
+BusQ = 0
 
-    BusQ = 0
- 
-    while (BusQ < len(posX1)):
-        if posX1[BusQ] >= 1100 or posX1[BusQ] <= -1100 or posZ1[BusQ] >= 600 or posZ1[BusQ] <= -600:
-            BusQ=len(posX1)
-        else:
-            Robot_1.pos.x = posX1[BusQ]
-            Robot_1.pos.z = posZ1[BusQ]
-            Robot_1.axis = vector(posD[0])
-            TagR1.pos = (Robot_1.pos.x, 150, Robot_1.pos.z)
-            UltPosX = posX1[BusQ]
-            UltPosZ = posZ1[BusQ]
+# Recorre los arreglos obtenidos anteriormente para
+# mover cada uno de loos robot a los tambores asignados
+while (BusQ < len(posX1)):
+    # Movimiento del Robot 1
+    Robot_1.pos.x = posX1[BusQ]
+    Robot_1.pos.z = posZ1[BusQ]
+    Robot_1.axis = vector(posD[0])
+    TagR1.pos = (Robot_1.pos.x, 150, Robot_1.pos.z)
+    UltPosX = posX1[BusQ]
+    UltPosZ = posZ1[BusQ]
 
-            Robot_2.pos.x = posX_2[BusQ]
-            Robot_2.pos.z = posZ_2[BusQ]
-            Robot_2.axis = vector(posD[1])
-            TagR2.pos = (Robot_2.pos.x, 150, Robot_2.pos.z)
-            UltPosX_2 = posX_2[BusQ]
-            UltPosZ_2 = posZ_2[BusQ]
+    # Movimiento del Robot 2
+    Robot_2.pos.x = posX_2[BusQ]
+    Robot_2.pos.z = posZ_2[BusQ]
+    Robot_2.axis = vector(posD[1])
+    TagR2.pos = (Robot_2.pos.x, 150, Robot_2.pos.z)
+    UltPosX_2 = posX_2[BusQ]
+    UltPosZ_2 = posZ_2[BusQ]
 
-            Robot_3.pos.x = posX_3[BusQ]
-            Robot_3.pos.z = posZ_3[BusQ]
-            Robot_3.axis = vector(posD[2])
-            TagR3.pos = (Robot_3.pos.x, 150, Robot_3.pos.z)
-            UltPosX_3 = posX_3[BusQ]
-            UltPosZ_3 = posZ_3[BusQ]
+    # Movimiento del Robot 3
+    Robot_3.pos.x = posX_3[BusQ]
+    Robot_3.pos.z = posZ_3[BusQ]
+    Robot_3.axis = vector(posD[2])
+    TagR3.pos = (Robot_3.pos.x, 150, Robot_3.pos.z)
+    UltPosX_3 = posX_3[BusQ]
+    UltPosZ_3 = posZ_3[BusQ]
 
-            Robot_4.pos.x = posX_4[BusQ]
-            Robot_4.pos.z = posZ_4[BusQ]
-            Robot_4.axis = vector(posD[3])
-            TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
-            UltPosX_4 = posX_4[BusQ]    
-            UltPosZ_4 = posZ_4[BusQ]            
+    # Movimiento del Robot 4
+    Robot_4.pos.x = posX_4[BusQ]
+    Robot_4.pos.z = posZ_4[BusQ]
+    Robot_4.axis = vector(posD[3])
+    TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
+    UltPosX_4 = posX_4[BusQ]    
+    UltPosZ_4 = posZ_4[BusQ]   
+             
+    BusQ = BusQ + 1
+    rate(250) 
 
-
-            BusQ = BusQ + 1
-
-  
-            rate(10) 
-    
-    # Animacion de la rotacion de los brazos  
-    rot = 0    
-    while rot < 4:
-        Brazos_1.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        Brazos_2.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
-        Brazos_3.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
-        Brazos_4.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0)) 
-        rot = rot + 1
-        rate(5)
-    carga1 = 3
-
-
+# Animacion de la rotacion de los brazos  
+rot = 0    
+while rot < 4:
+    Brazos_1.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    Brazos_2.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
+    Brazos_3.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
+    Brazos_4.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0)) 
+    rot = rot + 1
+    rate(100)
+carga = 3
 
 ################### GRAFICAS ####################
 
