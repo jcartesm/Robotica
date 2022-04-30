@@ -16,7 +16,7 @@ import time as ti
 # Esta función crea el escenario por donde se moveran los robot.
 # Output:
 #       - Un arreglo con las posiciones de las 4 metas donde se llevarán los tambores
-def my_Escenario():    
+def CreacionEscenario():    
     Ventana = display(title='En busqueda del Tambor Dorado', x=50, y=0, width=1280, height=720, center=(0,0,0))
     
     Superficie= box(pos=vector(0,0,0),size=vector(2000,2,1000), color = color.white)
@@ -40,7 +40,7 @@ def my_Escenario():
 # Output:
 #       - Los 4 Frames de los Tambores posicionados aleatoriamente
 
-def my_Tambores():
+def CreacionTambores():
 
     fTambor_1 = frame(pos=vector(ra.randint(0,700),0,ra.randint(-300,0)))
     fTambor_2 = frame(pos=vector(ra.randint(0,900),0,ra.randint(0,300)))
@@ -49,7 +49,7 @@ def my_Tambores():
     
     fTambor_1.Tambor  = cylinder(frame=fTambor_1, axis=vector(0,60,0), radius=30, color=color.blue) 
     fTambor_2.Tambor  = cylinder(frame=fTambor_2, axis=vector(0,60,0), radius=30, color=color.blue)
-    fTambor_3.Tambor  = cylinder(frame=fTambor_3, axis=vector(0,60,0), radius=30, color=color.blue)
+    fTambor_3.Tambor  = cylinder(frame=fTambor_3, axis=vector(0,60,0), radius=30, color=color.yellow)
     fTambor_4.Tambor  = cylinder(frame=fTambor_4, axis=vector(0,60,0), radius=30, color=color.blue)  
     
     return fTambor_1, fTambor_2, fTambor_3, fTambor_4
@@ -124,7 +124,7 @@ def RobotMaestro(x,y):
 #       - Arreglo de Velocidad Angular (w)
 
 def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg): 
-    ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) ; N = len(T)
+    ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) 
     # Seteo de arreglos de ceros para las coordendas y angulos
     xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
     ph  = np.zeros(len(T)+1) 
@@ -133,14 +133,17 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
     u   = np.zeros(len(T)+1) ; w   = np.zeros(len(T)+1)
     xre = np.zeros(len(T)+1) ; zre = np.zeros(len(T)+1)
 
+    # 
     xc[0] = UltPosX ; zc[0]=UltPosZ
     ph[0] = math.sin(math.radians(4))
 
+    # 
     xr[0] = xc[0] + nDesp*math.cos(ph[0])
     zr[0] = zc[0] + nDesp*math.sin(ph[0])
     xrD = PosDeseada[0] ; zrD = PosDeseada[2]
 
-    for i in range(N):
+    # 
+    for i in range(len(T)):
         xre[i] = xrD - xr[i]
         zre[i] = zrD - zr[i]
         
@@ -180,15 +183,15 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
 
 #-------------------------------Variables Iniciales-------------------------------------#
 
-nDesp=0.9
+nDesp=0.5
 centroide = [0,0]
 tPosInicial = (nDesp,0,0)
 
 #---------------------Creacion del escenario y ploteo de tambores---------------------------#
 
-posD = my_Escenario() 
+posD = CreacionEscenario() 
 ra.shuffle(posD)
-Tambor1, Tambor2, Tambor3, Tambor4 = my_Tambores() 
+Tambor1, Tambor2, Tambor3, Tambor4 = CreacionTambores() 
 Tambores = [Tambor1, Tambor2, Tambor3, Tambor4]
 ra.shuffle(Tambores)
 
@@ -216,14 +219,15 @@ TagR4 = label(pos=(Robot_4.pos.x, 150, Robot_4.pos.z), text='Robot 4', font='san
 
 
 #----------------------------------------------------------------------------#
+valorMG = 1.5
 carga1 = 0
 
 if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
 
-    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp, 1.7)
-    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp, 1.7)
-    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp, 1.7)
-    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp, 1.7)
+    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp, valorMG)
+    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp, valorMG)
+    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp, valorMG)
+    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp, valorMG)
 
     BusQ = 0
 
@@ -259,7 +263,7 @@ if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
             UltPosX_4 = posX_4[BusQ]
             UltPosZ_4 = posZ_4[BusQ]            
             
-            rate(1)
+            rate(10)
         BusQ = BusQ + 1
     carga1 = 1
 
@@ -287,7 +291,7 @@ if carga1 == 1:
         Brazos_3.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
         Brazos_4.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
         rot = rot + 1
-        rate(20)
+        rate(5)
 
     carga1 = 2
 if carga1 == 2:
@@ -328,14 +332,14 @@ if carga1 == 2:
             Robot_4.pos.z = posZ_4[BusQ]
             Robot_4.axis = vector(posD[3])
             TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
-            UltPosX_4 = posX_4[BusQ]
+            UltPosX_4 = posX_4[BusQ]    
             UltPosZ_4 = posZ_4[BusQ]            
 
 
             BusQ = BusQ + 1
 
   
-            rate(1) 
+            rate(10) 
     
     # Animacion de la rotacion de los brazos  
     rot = 0    
@@ -345,7 +349,7 @@ if carga1 == 2:
         Brazos_3.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
         Brazos_4.rotate(angle=-(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0)) 
         rot = rot + 1
-        rate(20)
+        rate(5)
     carga1 = 3
 
 
