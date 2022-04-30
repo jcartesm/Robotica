@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 from ast import Break
+from operator import le
 #from tkinter import font
 from turtle import width
 import matplotlib.pyplot as plt
@@ -101,16 +102,18 @@ def RobotMaestro(x,y):
 
 
     return fCuerpo , fBrazos
+    
 
 #---------------------------Implementacion del modelo cinematico-----------------------#
 # Este funcion se implementa el modelo cinematico de la ley de control visto en clases:
-# Recive:
+# Imput:
 #       - Ultima posicion en eje X del (UltPosX)
 #       - Ultima posicion en eje Z del (UltPosZ) "esto es porque se trabaja con"
 #         con un plano 3D y se reemplazo el Y por el Z.
 #       - La posicion deseada a la que se quiere llegar (PosDeseada)
 #       - El valor de la distancia desde el eje de las ruedas al punto de control (nDesp)
-# Devuelve:
+#       - un numero deciaml o entero para la matriz de ganancia (mg)
+# Output:
 #       - Posicion final en eje X (xc)
 #       - Posicion final en eje Z (zc)
 #       - Angulo phi (ph)
@@ -120,7 +123,7 @@ def RobotMaestro(x,y):
 #       - Arreglo de velocidad (u)
 #       - Arreglo de Velocidad Angular (w)
 
-def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp): 
+def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg): 
     ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) ; N = len(T)
     # Seteo de arreglos de ceros para las coordendas y angulos
     xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
@@ -150,8 +153,8 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp):
                       [math.sin(ph[i]), nDesp*math.cos(ph[i])]])
 
         #Matriz de Ganancia
-        K = np.array([[1.5, 0],
-                      [0, 1.5]])
+        K = np.array([[mg, 0],
+                      [0, mg]])
 
         #Ley de control del robot
         V = np.linalg.inv(J)*K*e
@@ -217,10 +220,10 @@ carga1 = 0
 
 if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
 
-    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp)
-    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp)
-    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp)
-    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp)
+    posX1, posZ1, phi1, eX, eZ, temp, vel_1, velA_1 = LeyControl(rPOSx, rPOSz, Tambores[0].pos, nDesp, 1.7)
+    posX_2, posZ_2, phi_2, eX_2,eZ_2, temp_2, vel_2, velA_2 = LeyControl(rPOSx_2, rPOSz_2, Tambores[1].pos, nDesp, 1.7)
+    posX_3, posZ_3, phi_3, eX_3, eZ_3, temp_3, vel_3, velA_3 = LeyControl(rPOSx_3, rPOSz_3, Tambores[2].pos, nDesp, 1.7)
+    posX_4, posZ_4, phi_4, eX_4, eZ_4, temp_4, vel_4, velA_4 = LeyControl(rPOSx_4, rPOSz_4, Tambores[3].pos, nDesp, 1.7)
 
     BusQ = 0
 
@@ -256,7 +259,7 @@ if (abs(Brazos_1.pos.x) <= abs(Tambor1.pos.x)):
             UltPosX_4 = posX_4[BusQ]
             UltPosZ_4 = posZ_4[BusQ]            
             
-            rate(10)
+            rate(1)
         BusQ = BusQ + 1
     carga1 = 1
 
@@ -284,15 +287,15 @@ if carga1 == 1:
         Brazos_3.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))
         Brazos_4.rotate(angle=(0.45*math.pi)/2, axis=(0,0,1), origin=(-30,30,0))    
         rot = rot + 1
-        rate(1)
+        rate(20)
 
     carga1 = 2
 if carga1 == 2:
 
-    posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp)
-    posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp)
-    posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp)
-    posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp)    
+    posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp, 1.7)
+    posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp, 1.7)
+    posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp, 1.7)
+    posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp, 1.7)    
 
     BusQ = 0
  
@@ -332,7 +335,7 @@ if carga1 == 2:
             BusQ = BusQ + 1
 
   
-            rate(10) 
+            rate(1) 
     
     # Animacion de la rotacion de los brazos  
     rot = 0    
@@ -353,14 +356,24 @@ if carga1 == 2:
 # Tratamiento de los arreglos haciendolos positivos para obtener graficas descenentes y 
 # observar de mejor manera la disminucion del error
 
+ts = 0.1; tf = 60 ; tempo = np.arange(0,tf+ts,ts)
 for i in range(len(eX)):
     eZ[i] = abs(eZ[i])
-    eX[i] = abs(eX[i])    
+    eX[i] = abs(eX[i])
+    eXp[i] = abs(eXp[i])
+    eZp[i] = abs(eZp[i])         
     eZ_2[i] = abs(eZ_2[i])
+    eX_2[i] = abs(eX_2[i])
+    eZp_2[i] = abs(eZp_2[i])
+    eXp_2[i] = abs(eXp_2[i]) 
     eX_3[i] = abs(eX_3[i])
     eZ_3[i] = abs(eZ_3[i])
+    eZp_3[i] = abs(eZp_3[i])
+    eXp_3[i] = abs(eXp_3[i])   
     eZ_4[i] = abs(eZ_4[i])
     eX_4[i] = abs(eX_4[i])
+    eZp_4[i] = abs(eZp_4[i])
+    eXp_4[i] = abs(eXp_4[i])   
     vel_1[i] = abs(vel_1[i])
     vel_2[i] = abs(vel_2[i])
     vel_3[i] = abs(vel_3[i])
@@ -370,17 +383,36 @@ for i in range(len(eX)):
     velA_3[i] = abs(velA_3[i])
     velA_4[i] = abs(velA_4[i])
 
-arrX_1 = np.delete(eX, 300)
-arrZ_1 = np.delete(eZ, 300)
 
-arrX_2 = np.delete(eX_2, 300)
-arrZ_2 = np.delete(eZ_2, 300)
+arrXF_1 = np.append(eX,eXp)
+arrZF_1 = np.append(eZ,eZp)
+arrX_1 = np.delete(arrXF_1, [588,599,600])
+arrZ_1 = np.delete(arrZF_1, [588,599,600])
 
-arrX_3 = np.delete(eX_3, 300)
-arrZ_3 = np.delete(eZ_3, 300)
+arrXF_2 = np.append(eX_2,eXp_2)
+arrZF_2 = np.append(eZ_2,eZp_2)
+arrX_2 = np.delete(arrXF_2, [588,599,600])
+arrZ_2 = np.delete(arrZF_2, [588,599,600])
 
-arrX_4 = np.delete(eX_4, 300)
-arrZ_4 = np.delete(eZ_4, 300)
+arrXF_3 = np.append(eX_3,eXp_3)
+arrZF_3 = np.append(eZ_3,eZp_3)
+arrX_3 = np.delete(arrXF_3, [588,599,600])
+arrZ_3 = np.delete(arrZF_3, [588,599,600])
+
+arrXF_4 = np.append(eX_4,eXp_4)
+arrZF_4 = np.append(eZ_4,eZp_4)
+arrX_4 = np.delete(arrXF_4, [588,599,600])
+arrZ_4 = np.delete(arrZF_4, [588,599,600])
+
+arPX_1 = np.delete(posX1, 300)
+arPX_2 = np.delete(posX_2, 300)
+arPX_3 = np.delete(posX_3, 300)
+arPX_4 = np.delete(posX_4, 300)
+
+arPZ_1 = np.delete(posZ1, 300)
+arPZ_2 = np.delete(posZ_2, 300)
+arPZ_3 = np.delete(posZ_3, 300)
+arPZ_4 = np.delete(posZ_4, 300)
 
 arV_1 = np.delete(vel_1, 300)
 arV_2 = np.delete(vel_2, 300)
@@ -420,32 +452,32 @@ plt.suptitle("POSICION ANGULAR")
 #   en donde se ve reflejado como este va disminuyendo mientras se acerca a su  
 #   destino
 
-ax_E[0, 0].plot(temp,arrX_1,'b',linewidth = 2, label='error X')
-ax_E[0, 0].plot(temp,arrZ_1,'r',linewidth = 2,  label='error Z')
+ax_E[0, 0].plot(tempo,arrX_1,'b',linewidth = 2, label='error X')
+ax_E[0, 0].plot(tempo,arrZ_1,'r',linewidth = 2,  label='error Z')
 ax_E[0, 0].legend(loc='upper right')
 ax_E[0, 0].set_xlabel('Tiempo [s]')
 ax_E[0, 0].set_ylabel('Error [m]')
 ax_E[0, 0].set_title("Robot I")
 ax_E[0, 0].grid()
 
-ax_E[0, 1].plot(temp,arrX_2,'b',linewidth = 2, label='error X')
-ax_E[0, 1].plot(temp,arrZ_2,'r',linewidth = 2,  label='error Z')
+ax_E[0, 1].plot(tempo,arrX_2,'b',linewidth = 2, label='error X')
+ax_E[0, 1].plot(tempo,arrZ_2,'r',linewidth = 2,  label='error Z')
 ax_E[0, 1].legend(loc='upper right')
 ax_E[0, 1].set_xlabel('Tiempo [s]')
 ax_E[0, 1].set_ylabel('Error [m]')
 ax_E[0, 1].set_title("Robot II")
 ax_E[0, 1].grid()
 
-ax_E[1, 0].plot(temp,arrX_3,'b',linewidth = 2, label='error X')
-ax_E[1, 0].plot(temp,arrZ_3,'r',linewidth = 2,  label='error Z')
+ax_E[1, 0].plot(tempo,arrX_3,'b',linewidth = 2, label='error X')
+ax_E[1, 0].plot(tempo,arrZ_3,'r',linewidth = 2,  label='error Z')
 ax_E[1, 0].legend(loc='upper right')
 ax_E[1, 0].set_xlabel('Tiempo [s]')
 ax_E[1, 0].set_ylabel('Error [m]')
 ax_E[1, 0].set_title("Robot III")
 ax_E[1, 0].grid()
 
-ax_E[1, 1].plot(temp,arrX_4,'b',linewidth = 2, label='error X')
-ax_E[1, 1].plot(temp,arrZ_4,'r',linewidth = 2,  label='error Z')
+ax_E[1, 1].plot(tempo,arrX_4,'b',linewidth = 2, label='error X')
+ax_E[1, 1].plot(tempo,arrZ_4,'r',linewidth = 2,  label='error Z')
 ax_E[1, 1].legend(loc='upper right')
 ax_E[1, 1].set_xlabel('Tiempo [s]')
 ax_E[1, 1].set_ylabel('Error [m]')
@@ -489,28 +521,32 @@ ax_V[1, 1].grid()
 
 #####################################################################
 
-# ax_P[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Posicion')
+ax_P[0, 0].plot(temp,arPX_1,'b',linewidth = 2, label='Posicion X')
+ax_P[0, 0].plot(temp,arPZ_1,'r',linewidth = 2, label='Posicion Z')
 ax_P[0, 0].legend(loc='upper right')
 ax_P[0, 0].set_xlabel('Tiempo [s]')
 ax_P[0, 0].set_ylabel('Posicion [m]')
 ax_P[0, 0].set_title("Robot I")
 ax_P[0, 0].grid()
 
-# ax_P[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Posicion')
+ax_P[0, 1].plot(temp,arPX_2,'b',linewidth = 2, label='Posicion X')
+ax_P[0, 1].plot(temp,arPZ_2,'r',linewidth = 2, label='Posicion Z')
 ax_P[0, 1].legend(loc='upper right')
 ax_P[0, 1].set_xlabel('Tiempo [s]')
 ax_P[0, 1].set_ylabel('Posicion [m]')
 ax_P[0, 1].set_title("Robot II")
 ax_P[0, 1].grid()
 
-# ax_P[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Posicion')
+ax_P[1, 0].plot(temp,arPX_3,'b',linewidth = 2, label='Posicion X')
+ax_P[1, 0].plot(temp,arPZ_3,'r',linewidth = 2, label='Posicion Z')
 ax_P[1, 0].legend(loc='upper right')
 ax_P[1, 0].set_xlabel('Tiempo [s]')
 ax_P[1, 0].set_ylabel('Posicion [m]')
 ax_P[1, 0].set_title("Robot III")
 ax_P[1, 0].grid()
 
-# ax_P[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Posicion')
+ax_P[1, 1].plot(temp,arPX_4,'b',linewidth = 2, label='Posicion X')
+ax_P[1, 1].plot(temp,arPZ_4,'r',linewidth = 2, label='Posicion Z')
 ax_P[1, 1].legend(loc='upper right')
 ax_P[1, 1].set_xlabel('Tiempo [s]')
 ax_P[1, 1].set_ylabel('Posicion [m]')
@@ -521,28 +557,28 @@ ax_P[1, 1].grid()
 
 # ax_acele[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Aceleracion')
 ax_acele[0, 0].legend(loc='upper right')
-ax_acele[0, 0].set_xlabel('Tiempo [s²]')
+ax_acele[0, 0].set_xlabel('Tiempo [s**2]')
 ax_acele[0, 0].set_ylabel('Distancia [m]')
 ax_acele[0, 0].set_title("Robot I")
 ax_acele[0, 0].grid()
 
 # ax_acele[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Aceleracion')
 ax_acele[0, 1].legend(loc='upper right')
-ax_acele[0, 1].set_xlabel('Tiempo [s²]')
+ax_acele[0, 1].set_xlabel('Tiempo [s**2]')
 ax_acele[0, 1].set_ylabel('Distancia [m]')
 ax_acele[0, 1].set_title("Robot II")
 ax_acele[0, 1].grid()
 
 # ax_acele[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Aceleracion')
 ax_acele[1, 0].legend(loc='upper right')
-ax_acele[1, 0].set_xlabel('Tiempo [s²]')
+ax_acele[1, 0].set_xlabel('Tiempo [s**2]')
 ax_acele[1, 0].set_ylabel('Distancia [m]')
 ax_acele[1, 0].set_title("Robot III")
 ax_acele[1, 0].grid()
 
 # ax_acele[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Aceleracion')
 ax_acele[1, 1].legend(loc='upper right')
-ax_acele[1, 1].set_xlabel('Tiempo [s²]')
+ax_acele[1, 1].set_xlabel('Tiempo [s**2]')
 ax_acele[1, 1].set_ylabel('Distancia [m]')
 ax_acele[1, 1].set_title("Robot IV")
 ax_acele[1, 1].grid()
