@@ -14,7 +14,7 @@ import time as ti
 
 #---------------------------------Ajuste del Escenario--------------------------------
 # Esta función crea el escenario por donde se moveran los robot.
-# Devuelve:
+# Output:
 #       - Un arreglo con las posiciones de las 4 metas donde se llevarán los tambores
 def my_Escenario():    
     Ventana = display(title='En busqueda del Tambor Dorado', x=50, y=0, width=1280, height=720, center=(0,0,0))
@@ -37,7 +37,7 @@ def my_Escenario():
 #---------------------------------Creacion de los Tambores--------------------------------
 # Esta función genera tambores en posiciones aleatorias dentro de cada cuadrante
 # de la superficie donde se movera el robot.
-# Devuelve:
+# Output:
 #       - Los 4 Frames de los Tambores posicionados aleatoriamente
 
 def my_Tambores():
@@ -57,10 +57,10 @@ def my_Tambores():
 #---------------------------------Creación de Robot's---------------------------------
 # Esta función crea un Robot a partir de coordenadas donde sera posicionado en el comienzo
 # de la ejecucion del programa.
-# Recive:
+# Imput:
 #       - Una poscion en el Eje X donde se situará el Robot
 #       - Una poscion en el Eje Z donde se situará el Robot (Eje Z funciona como el Eje Y)
-# Devuelve:
+# Output:
 #       - El Frame del cuerpo del Robot
 #       - El Frame de los brazos del Robot, para psoteriormente unirlos con el Frame del Barril
 
