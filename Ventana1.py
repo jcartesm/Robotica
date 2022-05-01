@@ -13,10 +13,12 @@ scene.range = 1000
 scene.title = "En la Busqueda del Tambor dorado\n"
 scene.camera.pos = vector(0,500,2000)
 
+#---------------------  AJUSTE DE LA VENTANA  ----------------------
 def Ventana():
      Suelo = box(pos=vector(0, 0, 0), size=vector(
          1280, 3, 720), color=color.gray(0.5))
 
+#---------------------  CREACION DEL ROBOT  ----------------------
 def Robot(x,y):
     Base = box(pos=vector(x,25,y),size=vector(100,30,80),color=color.red)
     
@@ -47,32 +49,28 @@ def Robot(x,y):
     return robotF
 
 def logicaMov(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
-    ts = 0.1
-    tf = 10
-    T = np.arange(0, tf, ts)
+    
+    ts = 0.1 ; tf = 10 ; T = np.arange(0, tf, ts)
     # Seteo de arreglos de ceros para las coordendas y angulos
-    xc = np.zeros(len(T))
-    zc = np.zeros(len(T))
+    xc = np.zeros(len(T)) ; xp = np.zeros(len(T)) ; xr = np.zeros(len(T)) ; xre = np.zeros(len(T))
+    zc = np.zeros(len(T)) ; zp = np.zeros(len(T)) ; zr = np.zeros(len(T)) ; zre = np.zeros(len(T))
     ph = np.zeros(len(T))
-    xp = np.zeros(len(T))
-    zp = np.zeros(len(T))
-    xr = np.zeros(len(T))
-    zr = np.zeros(len(T))
     u = np.zeros(len(T))
     w = np.zeros(len(T))
-    xre = np.zeros(len(T))
-    zre = np.zeros(len(T))
-
+    
+    # Posición actual del Robot
     xc[0] = ulPosX
     zc[0] = ulPosZ
     ph[0] = math.sin(math.radians(4))
 
+    # Posición de partida del Robot
     xr[0] = xc[0] + nDesp*math.cos(ph[0])
     zr[0] = zc[0] + nDesp*math.sin(ph[0])
     xrD = posDeseadaX
     zrD = posDeseadaZ
 
     for i in range(len(T)-1):
+        #Errores de control
         xre[i] = xrD - xr[i]
         zre[i] = zrD - zr[i]
 
@@ -109,7 +107,7 @@ def logicaMov(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
         zc[i+1] = zr[i+1] - nDesp*math.sin(ph[i+1])
 
     return(xc, zc, ph, xrD, zrD)
-# from base64 import decode
+
 
 #---------------------- Comienzo de la Ejecucion #----------------------
 # Se inicia el escenario
