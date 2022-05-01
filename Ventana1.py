@@ -1,5 +1,4 @@
-from turtle import pos
-from sympy import false, true
+# Librerias utilizadas
 from vpython import *
 import math
 import numpy as np
@@ -10,7 +9,7 @@ import serial as se
 scene.width = 800
 scene.height = 400
 scene.range = 1000
-scene.title = "En la Busqueda del Tambor dorado\n"
+scene.title = "Jor' He, el curioso del punto rojo\n"
 scene.camera.pos = vector(0,500,2000)
 
 #---------------------  AJUSTE DE LA VENTANA  ----------------------
@@ -47,6 +46,20 @@ def Robot(x,y):
     robotF.pos.z=y
 
     return robotF
+
+
+#---------------------------Implementacion del modelo cinematico-----------------------#
+# Este funcion se implementa el modelo cinematico de la ley de control visto en clases:
+# Imput:
+#       - Posicion actual del robot en eje X(UltPosX)
+#       - Posicion actual del robot en eje Z "esto es porque se trabaja con"
+#         con un plano 3D y se reemplazo el Y por el Z.
+#       - La posicion deseada a la que se quiere llegar (PosDeseada)
+#       - El valor de la distancia desde el eje de las ruedas al punto de control (nDesp)
+# Output:
+#       - Posicion final en eje X (xc)
+#       - Posicion final en eje Z (zc)
+#       - Angulo phi (ph)
 
 def logicaMov(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
     
@@ -106,7 +119,7 @@ def logicaMov(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
         xc[i+1] = xr[i+1] - nDesp*math.cos(ph[i+1])
         zc[i+1] = zr[i+1] - nDesp*math.sin(ph[i+1])
 
-    return(xc, zc, ph, xrD, zrD)
+    return(xc, zc, ph)
 
 
 #---------------------- Comienzo de la Ejecucion #----------------------
@@ -114,7 +127,7 @@ def logicaMov(ulPosX, ulPosZ, posDeseadaX, posDeseadaZ, nDesp):
 Ventana()
 
 # Se crea el robot en posicion x = 0 , z = 0
-El_Bicho = Robot(0,0)
+JorHe = Robot(0,0)
 
 # Abre el puerto serial
 s = se.Serial('COM3', 9600, timeout=1)
@@ -131,7 +144,7 @@ stop = "0"
 # El siguiente while se mantendra activo siempre y funciona de la siguiente
 # manera:
 # -Se mantendrá un while siempre activo, leyendo el puerto del serial y,
-# cuendo detecte algo diferente de '' (valor esperado: str con las coordenadas) coloca
+# cuando detecte algo diferente de '' (valor esperado: str con las coordenadas) coloca
 # un indicador de destino en esas coordenadas y utilizará la Ley de Control con las 
 # coordenadas recibidas como destino, para luego recorrer los arreglos de posiciones 
 # y mover el robot de acuerdo a ellas.
@@ -152,7 +165,7 @@ while True:
         destiny.pos.z = destino[1]
         destiny.visible = True
         # Ley de control aplicada
-        posx, posz, pi, xDestino, zDestino = logicaMov(El_Bicho.pos.x, El_Bicho.pos.z, destino[0], destino[1], 0.1)
+        posx, posz, pi= logicaMov(JorHe.pos.x, JorHe.pos.z, destino[0], destino[1], 0.1)
         busqueda = 0
         while busqueda < len(posx):
             # Los if impiden que salga de los bordes
@@ -160,9 +173,9 @@ while True:
             if posx[busqueda] < -640: posx[busqueda] = -640
             if posz[busqueda] > 360: posz[busqueda] = 360
             if posz[busqueda] < -360: posz[busqueda] = -360
-            El_Bicho.pos.x = posx[busqueda]
-            El_Bicho.pos.z = posz[busqueda]
-            El_Bicho.axis = vector(destino[0]-El_Bicho.pos.x,0,destino[1]-El_Bicho.pos.z)
+            JorHe.pos.x = posx[busqueda]
+            JorHe.pos.z = posz[busqueda]
+            JorHe.axis = vector(destino[0]-JorHe.pos.x,0,destino[1]-JorHe.pos.z)
             busqueda = busqueda+1
             rate(50)
         destiny.visible = False

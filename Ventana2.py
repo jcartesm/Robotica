@@ -1,5 +1,5 @@
+# Librerias utilizadas
 import sys
-#from matplotlib.animation import MovieWriter
 import pygame as pyg
 from pygame.locals import *
 import serial
@@ -67,4 +67,4 @@ while True:
             pyg.quit()
             sys.exit()
 
-pyg.quit()
+
