@@ -1,16 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import division
-from ast import Break
-from operator import le
-#from tkinter import font
-from turtle import width
 import matplotlib.pyplot as plt
 import numpy as np
 from visual import *
 import random as ra
 import math
-import time as ti
 
 #---------------------------------Ajuste del Escenario--------------------------------
 # Esta función crea el escenario por donde se moveran los robot.
@@ -127,12 +121,12 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
     ts = 0.1; tf = 30 ; T = np.arange(0,tf+ts,ts) 
     
     # Seteo de arreglos de ceros para las coordendas y angulos
-    xc  = np.zeros(len(T)+1) ; zc  = np.zeros(len(T)+1)
-    ph  = np.zeros(len(T)+1) 
-    xp  = np.zeros(len(T)+1) ; zp  = np.zeros(len(T)+1)
-    xr  = np.zeros(len(T)+1) ; zr  = np.zeros(len(T)+1)
-    u   = np.zeros(len(T)+1) ; w   = np.zeros(len(T)+1)
-    xre = np.zeros(len(T)+1) ; zre = np.zeros(len(T)+1)
+    xc  = np.zeros(len(T)) ; zc  = np.zeros(len(T))
+    ph  = np.zeros(len(T)) 
+    xp  = np.zeros(len(T)) ; zp  = np.zeros(len(T))
+    xr  = np.zeros(len(T)) ; zr  = np.zeros(len(T))
+    u   = np.zeros(len(T)) ; w   = np.zeros(len(T))
+    xre = np.zeros(len(T)) ; zre = np.zeros(len(T))
 
     # Posición actual del Robot
     xc[0] = UltPosX ; zc[0]=UltPosZ
@@ -142,9 +136,8 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
     xr[0] = xc[0] + nDesp*math.cos(ph[0])
     zr[0] = zc[0] + nDesp*math.sin(ph[0])
     xrD = PosDeseada[0] ; zrD = PosDeseada[2]
-
-    # 
-    for i in range(len(T)):
+ 
+    for i in range(len(T)-1):
         #Errores de control
         xre[i] = xrD - xr[i]
         zre[i] = zrD - zr[i]
@@ -186,8 +179,6 @@ def LeyControl(UltPosX, UltPosZ, PosDeseada, nDesp, mg):
 #-------------------------------Variables Iniciales-------------------------------------#
 
 nDesp=0.5
-centroide = [0,0]
-tPosInicial = (nDesp,0,0)
 
 #---------------------Creacion del escenario y ploteo de tambores---------------------------#
 
@@ -207,30 +198,26 @@ ra.shuffle(Tambores)
 #---------------------Ceacion de Objetos Robot, del cual obtenemos el cuerpo y los brazoz---------------------------#
 
 Robot_1 , Brazos_1 = RobotMaestro(0,0)
-rPOSx = Robot_1.pos.x
-rPOSz = Robot_1.pos.z
+rPOSx = Robot_1.pos.x ; rPOSz = Robot_1.pos.z
 TagR1 = label(pos=(Robot_1.pos.x, 150, Robot_1.pos.z), text='Robot 1', font='sans', height=10, color=color.green)
 
 Robot_2 , Brazos_2 = RobotMaestro(0,0)
-rPOSx_2 = Robot_2.pos.x
-rPOSz_2 = Robot_2.pos.z
+rPOSx_2 = Robot_2.pos.x ; rPOSz_2 = Robot_2.pos.z
 TagR2 = label(pos=(Robot_2.pos.x, 150, Robot_2.pos.z), text='Robot 2', font='sans', height=10, color=color.green)
 
 Robot_3 , Brazos_3 = RobotMaestro(0,0)
-rPOSx_3 = Robot_3.pos.x
-rPOSz_3 = Robot_3.pos.z
+rPOSx_3 = Robot_3.pos.x ; rPOSz_3 = Robot_3.pos.z
 TagR3 = label(pos=(Robot_3.pos.x, 150, Robot_3.pos.z), text='Robot 3', font='sans', height=10, color=color.green)
 
 Robot_4 , Brazos_4 = RobotMaestro(0,0)
-rPOSx_4 = Robot_4.pos.x
-rPOSz_4 = Robot_4.pos.z
+rPOSx_4 = Robot_4.pos.x ; rPOSz_4 = Robot_4.pos.z
 TagR4 = label(pos=(Robot_4.pos.x, 150, Robot_4.pos.z), text='Robot 4', font='sans', height=10, color=color.green)
 
 
 #----------------------------------------------------------------------------#
 
 # Valor de la Matriz de ganancia
-valorMG = 1.5
+valorMG = 1
 
 ################### Ejecucion del programa ####################
 
@@ -312,48 +299,48 @@ while rot < 4:
 # Se vuelve a utilizar la ley de control con cada robot, pero 
 # esta vez, utilizando los cuadros amarillo como destino, donde
 # depositaran su tambor.
-posX1, posZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp, 1.7)
-posX_2, posZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp, 1.7)
-posX_3, posZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp, 1.7)
-posX_4, posZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp, 1.7)    
+posPX1, posPZ1, phi1, eXp, eZp, temp_p, velP_1, velPA_1  = LeyControl(Robot_1.pos.x, Robot_1.pos.z, posD[0], nDesp, 1.7)
+posPX_2, posPZ_2, phi_2, eXp_2, eZp_2, temp_2_p, velP_2, velPA_2  = LeyControl(Robot_2.pos.x, Robot_2.pos.z, posD[1], nDesp, 1.7)
+posPX_3, posPZ_3, phi_3, eXp_3, eZp_3, temp_3_p, velP_3, velPA_3  = LeyControl(Robot_3.pos.x, Robot_3.pos.z, posD[2], nDesp, 1.7)
+posPX_4, posPZ_4, phi_4, eXp_4, eZp_4, temp_4_p, velP_4, velPA_4  = LeyControl(Robot_4.pos.x, Robot_4.pos.z, posD[3], nDesp, 1.7)    
 
 # Variable que permite recorrer los datos y salir del while
 BusQ = 0
 
 # Recorre los arreglos obtenidos anteriormente para
 # mover cada uno de loos robot a los tambores asignados
-while (BusQ < len(posX1)):
+while (BusQ < len(posPX1)):
     # Movimiento del Robot 1
-    Robot_1.pos.x = posX1[BusQ]
-    Robot_1.pos.z = posZ1[BusQ]
+    Robot_1.pos.x = posPX1[BusQ]
+    Robot_1.pos.z = posPZ1[BusQ]
     Robot_1.axis = vector(posD[0])
     TagR1.pos = (Robot_1.pos.x, 150, Robot_1.pos.z)
-    UltPosX = posX1[BusQ]
-    UltPosZ = posZ1[BusQ]
+    UltPosX = posPX1[BusQ]
+    UltPosZ = posPZ1[BusQ]
 
     # Movimiento del Robot 2
-    Robot_2.pos.x = posX_2[BusQ]
-    Robot_2.pos.z = posZ_2[BusQ]
+    Robot_2.pos.x = posPX_2[BusQ]
+    Robot_2.pos.z = posPZ_2[BusQ]
     Robot_2.axis = vector(posD[1])
     TagR2.pos = (Robot_2.pos.x, 150, Robot_2.pos.z)
-    UltPosX_2 = posX_2[BusQ]
-    UltPosZ_2 = posZ_2[BusQ]
+    UltPosX_2 = posPX_2[BusQ]
+    UltPosZ_2 = posPZ_2[BusQ]
 
     # Movimiento del Robot 3
-    Robot_3.pos.x = posX_3[BusQ]
-    Robot_3.pos.z = posZ_3[BusQ]
+    Robot_3.pos.x = posPX_3[BusQ]
+    Robot_3.pos.z = posPZ_3[BusQ]
     Robot_3.axis = vector(posD[2])
     TagR3.pos = (Robot_3.pos.x, 150, Robot_3.pos.z)
-    UltPosX_3 = posX_3[BusQ]
-    UltPosZ_3 = posZ_3[BusQ]
+    UltPosX_3 = posPX_3[BusQ]
+    UltPosZ_3 = posPZ_3[BusQ]
 
     # Movimiento del Robot 4
-    Robot_4.pos.x = posX_4[BusQ]
-    Robot_4.pos.z = posZ_4[BusQ]
+    Robot_4.pos.x = posPX_4[BusQ]
+    Robot_4.pos.z = posPZ_4[BusQ]
     Robot_4.axis = vector(posD[3])
     TagR4.pos = (Robot_4.pos.x, 150, Robot_4.pos.z)
-    UltPosX_4 = posX_4[BusQ]    
-    UltPosZ_4 = posZ_4[BusQ]   
+    UltPosX_4 = posPX_4[BusQ]    
+    UltPosZ_4 = posPZ_4[BusQ]   
              
     BusQ = BusQ + 1
     rate(250) 
@@ -375,7 +362,16 @@ carga = 3
 # Tratamiento de los arreglos haciendolos positivos para obtener graficas descenentes y 
 # observar de mejor manera la disminucion del error
 
+##############################################################################################
+
+# Creamos un nuevo arreglo de tiempo para poder obtener graficas de acuerdo a la utilizacion
+# de ley de control 2 veces y que estos arreglos tengan igual dimension.
+# 
+# El ciclo for se utiliza para dejar los valores de los arreglos en positivo en el caso de los
+# errores y velocidades, para una mejor visualizacion a la hora de graficar.
+
 ts = 0.1; tf = 60 ; tempo = np.arange(0,tf+ts,ts)
+
 for i in range(len(eX)):
     eZ[i] = abs(eZ[i])
     eX[i] = abs(eX[i])
@@ -397,72 +393,115 @@ for i in range(len(eX)):
     vel_2[i] = abs(vel_2[i])
     vel_3[i] = abs(vel_3[i])
     vel_4[i] = abs(vel_4[i])
+    velP_1[i] = abs(velP_1[i])
+    velP_2[i] = abs(velP_2[i])
+    velP_3[i] = abs(velP_3[i])
+    velP_4[i] = abs(velP_4[i])
     velA_1[i] = abs(velA_1[i])
     velA_2[i] = abs(velA_2[i])
     velA_3[i] = abs(velA_3[i])
     velA_4[i] = abs(velA_4[i])
+    velPA_1[i] = abs(velPA_1[i])
+    velPA_2[i] = abs(velPA_2[i])
+    velPA_3[i] = abs(velPA_3[i])
+    velPA_4[i] = abs(velPA_4[i])
+
+# Aqui juntamos ambos arreglos de errores obtenidos de la aplicacion de la ley de control
+# en cuanto a errores para luego dimensionar de acuerdo al tiempo quitandole 1 valor
+# que en este caso es el de la posicion 599.
+
+arrXF_1 = np.append(eX,eXp) ; arrZF_1 = np.append(eZ,eZp)
+arrX_1 = np.delete(arrXF_1, 599) ; arrZ_1 = np.delete(arrZF_1, 599)
+
+arrXF_2 = np.append(eX_2,eXp_2) ; arrZF_2 = np.append(eZ_2,eZp_2)
+arrX_2 = np.delete(arrXF_2, 599) ; arrZ_2 = np.delete(arrZF_2, 599)
+
+arrXF_3 = np.append(eX_3,eXp_3) ; arrZF_3 = np.append(eZ_3,eZp_3)
+arrX_3 = np.delete(arrXF_3, 599) ; arrZ_3 = np.delete(arrZF_3, 599)
+
+arrXF_4 = np.append(eX_4,eXp_4) ; arrZF_4 = np.append(eZ_4,eZp_4)
+arrX_4 = np.delete(arrXF_4, 599) ; arrZ_4 = np.delete(arrZF_4, 599)
+
+######################################################################
+# En este apartado se trabaja con los datos de posicion para graficar
+# y se combinan ambos arrays para luego adaptarlo a la dimension del 
+# tiempo.
+
+arrPXF_1 = np.append(posX1,posPX1) ; arrPZF_1 = np.append(posZ1,posPZ1)
+arrPX_1 = np.delete(arrPXF_1, 599) ; arrPZ_1 = np.delete(arrPZF_1, 599)
+
+arrPXF_2 = np.append(posX_2,posPX_2) ; arrPZF_2 = np.append(posZ_2,posPZ_2)
+arrPX_2 = np.delete(arrPXF_2, 599) ; arrPZ_2 = np.delete(arrPZF_2, 599)
+
+arrPXF_3 = np.append(posX_3,posPX_3) ; arrPZF_3 = np.append(posZ_3,posPZ_3)
+arrPX_3 = np.delete(arrPXF_3, 599) ; arrPZ_3 = np.delete(arrPZF_3, 599)
+
+arrPXF_4 = np.append(posX_4,posPX_4) ; arrPZF_4 = np.append(posZ_4,posPZ_4)
+arrPX_4 = np.delete(arrPXF_4, 599) ; arrPZ_4 = np.delete(arrPZF_4, 599)
+
+#######################################################################
+# Aqui trabajamos los arreglos de velocidad tanto angular como normal
+# para luego realizar calculos en el ciclo for y obtener aceleracion
+# y posicion angular.
+
+Velr_1 = np.append(velA_1, velPA_1) ; VelAF_1 = np.delete(Velr_1, 599)
+Velr_2 = np.append(velA_2, velPA_2) ; VelAF_2 = np.delete(Velr_2, 599)
+Velr_3 = np.append(velA_3, velPA_3) ; VelAF_3 = np.delete(Velr_3, 599)
+Velr_4 = np.append(velA_4, velPA_4) ; VelAF_4 = np.delete(Velr_4, 599)
+
+ace_1 = np.append(vel_1, velP_1) ; VelF_1 = np.delete(ace_1, 599)
+ace_2 = np.append(vel_2, velP_2) ; VelF_2 = np.delete(ace_2, 599)
+ace_3 = np.append(vel_3, velP_3) ; VelF_3 = np.delete(ace_3, 599)
+ace_4 = np.append(vel_4, velP_4) ; VelF_4 = np.delete(ace_4, 599)
+
+acele_1 = []
+acele_2 = []
+acele_3 = []
+acele_4 = []
+PoA_1 = []
+PoA_2 = []
+PoA_3 = []
+PoA_4 = []
+for e in range(len(VelF_1)):
+    ace_1 = VelF_1[e]/tempo[e]
+    ace_2 = VelF_2[e]/tempo[e]
+    ace_3 = VelF_3[e]/tempo[e]
+    ace_4 = VelF_4[e]/tempo[e]
+    acele_1.append(ace_1)
+    acele_2.append(ace_2)
+    acele_3.append(ace_3)
+    acele_4.append(ace_4)
+    Pa_1 = VelAF_1[e]*tempo[e]
+    Pa_2 = VelAF_2[e]*tempo[e]
+    Pa_3 = VelAF_3[e]*tempo[e]
+    Pa_4 = VelAF_4[e]*tempo[e]
+    PoA_1.append(Pa_1)
+    PoA_2.append(Pa_2)
+    PoA_3.append(Pa_3)
+    PoA_4.append(Pa_4)
 
 
-arrXF_1 = np.append(eX,eXp)
-arrZF_1 = np.append(eZ,eZp)
-arrX_1 = np.delete(arrXF_1, [588,599,600])
-arrZ_1 = np.delete(arrZF_1, [588,599,600])
-
-arrXF_2 = np.append(eX_2,eXp_2)
-arrZF_2 = np.append(eZ_2,eZp_2)
-arrX_2 = np.delete(arrXF_2, [588,599,600])
-arrZ_2 = np.delete(arrZF_2, [588,599,600])
-
-arrXF_3 = np.append(eX_3,eXp_3)
-arrZF_3 = np.append(eZ_3,eZp_3)
-arrX_3 = np.delete(arrXF_3, [588,599,600])
-arrZ_3 = np.delete(arrZF_3, [588,599,600])
-
-arrXF_4 = np.append(eX_4,eXp_4)
-arrZF_4 = np.append(eZ_4,eZp_4)
-arrX_4 = np.delete(arrXF_4, [588,599,600])
-arrZ_4 = np.delete(arrZF_4, [588,599,600])
-
-arPX_1 = np.delete(posX1, 300)
-arPX_2 = np.delete(posX_2, 300)
-arPX_3 = np.delete(posX_3, 300)
-arPX_4 = np.delete(posX_4, 300)
-
-arPZ_1 = np.delete(posZ1, 300)
-arPZ_2 = np.delete(posZ_2, 300)
-arPZ_3 = np.delete(posZ_3, 300)
-arPZ_4 = np.delete(posZ_4, 300)
-
-arV_1 = np.delete(vel_1, 300)
-arV_2 = np.delete(vel_2, 300)
-arV_3 = np.delete(vel_3, 300)
-arV_4 = np.delete(vel_4, 300)
-
-arVA_1 = np.delete(velA_1, 300)
-arVA_2 = np.delete(velA_2, 300)
-arVA_3 = np.delete(velA_3, 300)
-arVA_4 = np.delete(velA_4, 300)
-
-# 
 #   Aqui creamos las figuras y le asignamos una variable a los subplots para luego plotear
-#   de acuerdo a esta variable en cada sector designado como matriz
+#   de acuerdo a esta variable en cada sector designado como matriz, en este caso
+#   generamos las figuras como matriz de 2x2 con un tamaño de 9x9.
+# 
 
-fig_E, ax_E = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_E, ax_E = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("ERRORES DE LOS 4 ROBOTS")
 
-fig_V, ax_V = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_V, ax_V = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("VELOCIDAD")
 
-fig_P, ax_P = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_P, ax_P = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("POSICION")
 
-fig_acele, ax_acele = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_acele, ax_acele = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("ACELERACION")
 
-fig_VA, ax_VA = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_VA, ax_VA = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("VELOCIDAD ANGULAR")
 
-fig_PA, ax_PA = plt.subplots(nrows=2, ncols=2, figsize=(9,9))
+fig_PA, ax_PA = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
 plt.suptitle("POSICION ANGULAR")
 
 ################### VENTANA DE ERROR #################### 
@@ -510,28 +549,28 @@ ax_E[1, 1].grid()
 # 
 
 #########################################################################
-ax_V[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Velocidad')
+ax_V[0, 0].plot(tempo,VelF_1,'b',linewidth = 2, label='Velocidad')
 ax_V[0, 0].legend(loc='upper right')
 ax_V[0, 0].set_xlabel('Tiempo [s]')
 ax_V[0, 0].set_ylabel('Distancia [m]')
 ax_V[0, 0].set_title("Robot I")
 ax_V[0, 0].grid()
 
-ax_V[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Velocidad')
+ax_V[0, 1].plot(tempo,VelF_2,'b',linewidth = 2, label='Velocidad')
 ax_V[0, 1].legend(loc='upper right')
 ax_V[0, 1].set_xlabel('Tiempo [s]')
 ax_V[0, 1].set_ylabel('Distancia [m]')
 ax_V[0, 1].set_title("Robot II")
 ax_V[0, 1].grid()
 
-ax_V[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Velocidad')
+ax_V[1, 0].plot(tempo,VelF_3,'b',linewidth = 2, label='Velocidad')
 ax_V[1, 0].legend(loc='upper right')
 ax_V[1, 0].set_xlabel('Tiempo [s]')
 ax_V[1, 0].set_ylabel('Distancia [m]')
 ax_V[1, 0].set_title("Robot III")
 ax_V[1, 0].grid()
 
-ax_V[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Velocidad')
+ax_V[1, 1].plot(tempo,VelF_4,'b',linewidth = 2, label='Velocidad')
 ax_V[1, 1].legend(loc='upper right')
 ax_V[1, 1].set_xlabel('Tiempo [s]')
 ax_V[1, 1].set_ylabel('Distancia [m]')
@@ -540,32 +579,32 @@ ax_V[1, 1].grid()
 
 #####################################################################
 
-ax_P[0, 0].plot(temp,arPX_1,'b',linewidth = 2, label='Posicion X')
-ax_P[0, 0].plot(temp,arPZ_1,'r',linewidth = 2, label='Posicion Z')
+ax_P[0, 0].plot(tempo,arrPX_1,'b',linewidth = 2, label='Posicion X')
+ax_P[0, 0].plot(tempo,arrPZ_1,'r',linewidth = 2, label='Posicion Z')
 ax_P[0, 0].legend(loc='upper right')
 ax_P[0, 0].set_xlabel('Tiempo [s]')
 ax_P[0, 0].set_ylabel('Posicion [m]')
 ax_P[0, 0].set_title("Robot I")
 ax_P[0, 0].grid()
 
-ax_P[0, 1].plot(temp,arPX_2,'b',linewidth = 2, label='Posicion X')
-ax_P[0, 1].plot(temp,arPZ_2,'r',linewidth = 2, label='Posicion Z')
+ax_P[0, 1].plot(tempo,arrPX_2,'b',linewidth = 2, label='Posicion X')
+ax_P[0, 1].plot(tempo,arrPZ_2,'r',linewidth = 2, label='Posicion Z')
 ax_P[0, 1].legend(loc='upper right')
 ax_P[0, 1].set_xlabel('Tiempo [s]')
 ax_P[0, 1].set_ylabel('Posicion [m]')
 ax_P[0, 1].set_title("Robot II")
 ax_P[0, 1].grid()
 
-ax_P[1, 0].plot(temp,arPX_3,'b',linewidth = 2, label='Posicion X')
-ax_P[1, 0].plot(temp,arPZ_3,'r',linewidth = 2, label='Posicion Z')
+ax_P[1, 0].plot(tempo,arrPX_3,'b',linewidth = 2, label='Posicion X')
+ax_P[1, 0].plot(tempo,arrPZ_3,'r',linewidth = 2, label='Posicion Z')
 ax_P[1, 0].legend(loc='upper right')
 ax_P[1, 0].set_xlabel('Tiempo [s]')
 ax_P[1, 0].set_ylabel('Posicion [m]')
 ax_P[1, 0].set_title("Robot III")
 ax_P[1, 0].grid()
 
-ax_P[1, 1].plot(temp,arPX_4,'b',linewidth = 2, label='Posicion X')
-ax_P[1, 1].plot(temp,arPZ_4,'r',linewidth = 2, label='Posicion Z')
+ax_P[1, 1].plot(tempo,arrPX_4,'b',linewidth = 2, label='Posicion X')
+ax_P[1, 1].plot(tempo,arrPZ_4,'r',linewidth = 2, label='Posicion Z')
 ax_P[1, 1].legend(loc='upper right')
 ax_P[1, 1].set_xlabel('Tiempo [s]')
 ax_P[1, 1].set_ylabel('Posicion [m]')
@@ -574,28 +613,28 @@ ax_P[1, 1].grid()
 
 #####################################################################
 
-# ax_acele[0, 0].plot(temp,arV_1,'b',linewidth = 2, label='Aceleracion')
+ax_acele[0, 0].plot(tempo,acele_1,'b',linewidth = 2, label='Aceleracion')
 ax_acele[0, 0].legend(loc='upper right')
 ax_acele[0, 0].set_xlabel('Tiempo [s**2]')
 ax_acele[0, 0].set_ylabel('Distancia [m]')
 ax_acele[0, 0].set_title("Robot I")
 ax_acele[0, 0].grid()
 
-# ax_acele[0, 1].plot(temp,arV_2,'b',linewidth = 2, label='Aceleracion')
+ax_acele[0, 1].plot(tempo,acele_2,'b',linewidth = 2, label='Aceleracion')
 ax_acele[0, 1].legend(loc='upper right')
 ax_acele[0, 1].set_xlabel('Tiempo [s**2]')
 ax_acele[0, 1].set_ylabel('Distancia [m]')
 ax_acele[0, 1].set_title("Robot II")
 ax_acele[0, 1].grid()
 
-# ax_acele[1, 0].plot(temp,arV_3,'b',linewidth = 2, label='Aceleracion')
+ax_acele[1, 0].plot(tempo,acele_3,'b',linewidth = 2, label='Aceleracion')
 ax_acele[1, 0].legend(loc='upper right')
 ax_acele[1, 0].set_xlabel('Tiempo [s**2]')
 ax_acele[1, 0].set_ylabel('Distancia [m]')
 ax_acele[1, 0].set_title("Robot III")
 ax_acele[1, 0].grid()
 
-# ax_acele[1, 1].plot(temp,arV_4,'b',linewidth = 2, label='Aceleracion')
+ax_acele[1, 1].plot(tempo,acele_4,'b',linewidth = 2, label='Aceleracion')
 ax_acele[1, 1].legend(loc='upper right')
 ax_acele[1, 1].set_xlabel('Tiempo [s**2]')
 ax_acele[1, 1].set_ylabel('Distancia [m]')
@@ -609,28 +648,28 @@ ax_acele[1, 1].grid()
 # 
 # 
 
-ax_VA[0, 0].plot(temp,arVA_1,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[0, 0].plot(tempo,VelAF_1,'b',linewidth = 2, label='Velocidad Angular')
 ax_VA[0, 0].legend(loc='upper right')
 ax_VA[0, 0].set_xlabel('Tiempo [s]')
 ax_VA[0, 0].set_ylabel('w [rad]')
 ax_VA[0, 0].set_title("Robot I")
 ax_VA[0, 0].grid()
 
-ax_VA[0, 1].plot(temp,arVA_2,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[0, 1].plot(tempo,VelAF_2,'b',linewidth = 2, label='Velocidad Angular')
 ax_VA[0, 1].legend(loc='upper right')
 ax_VA[0, 1].set_xlabel('Tiempo [s]')
 ax_VA[0, 1].set_ylabel('w [Rad]')
 ax_VA[0, 1].set_title("Robot II")
 ax_VA[0, 1].grid()
 
-ax_VA[1, 0].plot(temp,arVA_3,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[1, 0].plot(tempo,VelAF_3,'b',linewidth = 2, label='Velocidad Angular')
 ax_VA[1, 0].legend(loc='upper right')
 ax_VA[1, 0].set_xlabel('Tiempo [s]')
 ax_VA[1, 0].set_ylabel('w [rad]')
 ax_VA[1, 0].set_title("Robot III")
 ax_VA[1, 0].grid()
 
-ax_VA[1, 1].plot(temp,arVA_4,'b',linewidth = 2, label='Velocidad Angular')
+ax_VA[1, 1].plot(tempo,VelAF_4,'b',linewidth = 2, label='Velocidad Angular')
 ax_VA[1, 1].legend(loc='upper right')
 ax_VA[1, 1].set_xlabel('Tiempo [s]')
 ax_VA[1, 1].set_ylabel('w [rad]')
@@ -639,28 +678,28 @@ ax_VA[1, 1].grid()
 
 ########################################################################
 
-# ax_PA[0, 0].plot(temp,arVA_1,'b',linewidth = 2, label='Posicion')
+ax_PA[0, 0].plot(tempo,PoA_1,'b',linewidth = 2, label='Posicion')
 ax_PA[0, 0].legend(loc='upper right')
 ax_PA[0, 0].set_xlabel('Tiempo [s]')
 ax_PA[0, 0].set_ylabel('Pw')
 ax_PA[0, 0].set_title("Robot I")
 ax_PA[0, 0].grid()
 
-# ax_PA[0, 1].plot(temp,arVA_2,'b',linewidth = 2, label='Posicion')
+ax_PA[0, 1].plot(tempo,PoA_2,'b',linewidth = 2, label='Posicion')
 ax_PA[0, 1].legend(loc='upper right')
 ax_PA[0, 1].set_xlabel('Tiempo [s]')
 ax_PA[0, 1].set_ylabel('Pw')
 ax_PA[0, 1].set_title("Robot II")
 ax_PA[0, 1].grid()
 
-# ax_PA[1, 0].plot(temp,arVA_3,'b',linewidth = 2, label='Posicion')
+ax_PA[1, 0].plot(tempo,PoA_3,'b',linewidth = 2, label='Posicion')
 ax_PA[1, 0].legend(loc='upper right')
 ax_PA[1, 0].set_xlabel('Tiempo [s]')
 ax_PA[1, 0].set_ylabel('Pw')
 ax_PA[1, 0].set_title("Robot III")
 ax_PA[1, 0].grid()
 
-# ax_PA[1, 1].plot(temp,arVA_4,'b',linewidth = 2, label='Posicion')
+ax_PA[1, 1].plot(tempo,PoA_4,'b',linewidth = 2, label='Posicion')
 ax_PA[1, 1].legend(loc='upper right')
 ax_PA[1, 1].set_xlabel('Tiempo [s]')
 ax_PA[1, 1].set_ylabel('Pw')
